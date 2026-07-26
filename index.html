@@ -8,20 +8,20 @@
   <title>说吧 - 理性知识交流社区</title>
   <style>
     :root {
-      --bg: #f4f6f5;
-      --surface: #ffffff;
-      --surface-2: #edf2ef;
-      --ink: #18211d;
-      --muted: #68736e;
-      --line: #dbe2de;
-      --green: #176b4d;
-      --green-dark: #0d4d37;
-      --green-soft: #e4f1ea;
-      --coral: #c7533f;
-      --coral-soft: #fbece8;
-      --gold: #a66b09;
-      --gold-soft: #fff4dc;
-      --shadow: 0 8px 28px rgba(25, 38, 32, .07);
+      --bg: #f3efe8;
+      --surface: #fffdf9;
+      --surface-2: #e8eff1;
+      --ink: #34403d;
+      --muted: #74807d;
+      --line: #dcd8cf;
+      --green: #557b78;
+      --green-dark: #3f625f;
+      --green-soft: #e2edeb;
+      --coral: #b96f62;
+      --coral-soft: #f7e9e4;
+      --gold: #987346;
+      --gold-soft: #f3ead9;
+      --shadow: 0 10px 30px rgba(71, 62, 48, .06);
     }
     * { box-sizing: border-box; }
     body { margin: 0; color: var(--ink); background: var(--bg); font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif; font-size: 15px; line-height: 1.65; letter-spacing: 0; }
@@ -29,9 +29,13 @@
     button { cursor: pointer; }
     button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 3px solid rgba(23,107,77,.22); outline-offset: 2px; }
     img { display: block; max-width: 100%; }
-    .topbar { position: sticky; top: 0; z-index: 20; height: 66px; display: grid; grid-template-columns: 240px minmax(280px, 620px) 1fr; align-items: center; gap: 24px; padding: 0 28px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.96); backdrop-filter: blur(10px); }
+    body.dark { --bg:#202524; --surface:#292f2d; --surface-2:#343d3e; --ink:#e7e4dc; --muted:#aeb7b3; --line:#414947; --green:#86aaa6; --green-dark:#b5cfcc; --green-soft:#344643; --coral:#d38a7d; --coral-soft:#4d3834; --gold:#c6a878; --gold-soft:#4b4335; --shadow:0 12px 34px rgba(0,0,0,.2); }
+    body.dark input,body.dark textarea,body.dark select,body.dark .search-popover,body.dark .share-menu { color:var(--ink); border-color:var(--line); background:var(--surface); }
+    body.dark .article-detail-content p { color:var(--ink); }
+    .topbar { position: sticky; top: 0; z-index: 20; height: 66px; display: grid; grid-template-columns: 240px minmax(280px, 620px) 1fr; align-items: center; gap: 24px; padding: 0 28px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: blur(10px); }
     .brand { display: flex; align-items: center; gap: 11px; min-width: 0; }
-    .brand-mark { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 6px; color: #fff; background: var(--green-dark); font-weight: 800; font-size: 19px; }
+    .brand-mark { position:relative; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 12px 12px 12px 3px; color: #fff; background: var(--coral); box-shadow: 3px 3px 0 var(--gold-soft); transform: rotate(-3deg); font-weight: 800; font-size: 19px; }
+    .brand-mark::after { content:"✦"; position:absolute; right:-7px; top:-8px; color:var(--gold); font-size:14px; transform:rotate(3deg); }
     .brand strong { display: block; font-size: 18px; line-height: 1.2; }
     .brand span { display: block; color: var(--muted); font-size: 10px; }
     .search { position: relative; }
@@ -114,6 +118,22 @@
     .article-detail img { width: 100%; max-height: 360px; object-fit: cover; margin-bottom: 20px; border-radius: 5px; }
     .article-detail-content p { margin: 0 0 16px; color: #27322d; font-size: 14px; line-height: 1.95; }
     .article-detail-content h3 { margin: 24px 0 10px; font-size: 17px; }
+    .reading-modes { display:flex; gap:6px; margin:0 0 18px; padding:4px; background:var(--surface-2); }
+    .reading-modes button { flex:1; padding:8px; border:0; border-radius:4px; color:var(--muted); background:transparent; font-weight:700; }
+    .reading-modes button.active { color:var(--ink); background:var(--surface); box-shadow:0 2px 8px rgba(0,0,0,.05); }
+    .quick-read { padding:16px; border-left:3px solid var(--green); background:var(--green-soft); line-height:1.9; }
+    .light-zone { display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center; margin-top:12px; padding:15px 18px; border:1px solid var(--line); border-radius:7px; background:var(--surface); }
+    .light-zone strong,.light-zone span { display:block; }
+    .light-zone span { color:var(--muted); font-size:11px; }
+    .spar-options { display:flex; gap:6px; }
+    .spar-options button { padding:7px 10px; border:1px solid var(--line); border-radius:999px; color:var(--muted); background:var(--surface-2); }
+    .random-card { min-height:150px; padding:15px; border-radius:7px; background:var(--surface-2); }
+    .random-card small { color:var(--coral); font-weight:800; }
+    .random-card strong { display:block; margin:8px 0; font-size:14px; line-height:1.6; }
+    .random-card p { margin:0; color:var(--muted); font-size:11px; }
+    .format-switch { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; padding:4px; background:var(--surface-2); }
+    .format-switch button { padding:8px; border:0; color:var(--muted); background:transparent; font-weight:700; }
+    .format-switch button.active { color:var(--ink); background:var(--surface); }
     .post-body { margin: 0; color: #3d4742; }
     .post-image { width: 100%; aspect-ratio: 16/7; margin-top: 14px; object-fit: cover; border-radius: 5px; background: var(--surface-2); }
     .post-note { margin-top: 13px; padding: 10px 12px; border-left: 3px solid var(--green); background: var(--green-soft); color: var(--green-dark); font-size: 12px; }
@@ -368,6 +388,7 @@
       .feed-tab { min-height: 34px; flex: 0 0 auto; }
       .post { padding: 18px 16px; }
       .post h2 { font-size: 17px; }
+      .light-zone { grid-template-columns:1fr; padding:12px; }
       .form-grid { grid-template-columns: 1fr; }
       .recommend-list { grid-template-columns: 1fr; }
       .field.full { grid-column: auto; }
@@ -388,9 +409,9 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="brand"><div class="brand-mark">说</div><div><strong>说吧</strong><span>求知辩思，一吐为快</span></div></div>
+    <div class="brand"><div class="brand-mark">说</div><div><strong>说吧</strong><span>摸鱼间隙，收获一点新知</span></div></div>
     <div class="search"><input id="searchInput" type="search" placeholder="搜索文章、问题、领域或创作者" aria-label="全局搜索"><button id="searchBtn" aria-label="搜索"><i data-lucide="search"></i></button><div class="search-popover hidden" id="searchPopover"><strong>此刻，大家正在认真寻找答案</strong><p>从一个真实问题出发，也许下一篇内容就能帮你少走一段弯路。</p><div class="hot-searches"><button data-hot="如何建立有效学习计划">大一如何真正学会自律</button><button data-hot="大学生力量训练">零基础力量训练</button><button data-hot="C语言指针">终于有人讲懂C语言指针</button><button data-hot="职业选择">第一份工作怎么选</button></div></div></div>
-    <div class="top-actions"><button class="icon-btn" aria-label="消息"><i data-lucide="bell"></i></button><button class="icon-btn" id="analyticsEntry" aria-label="运营数据"><i data-lucide="chart-no-axes-combined"></i></button><button class="btn primary" id="topPublish"><i data-lucide="square-pen"></i>发布</button><button class="btn" id="authEntry">登录 / 注册</button><button class="avatar hidden" id="profileAvatar" aria-label="进入个人主页">知行</button><input class="hidden" id="avatarInput" type="file" accept="image/png,image/jpeg,image/webp"></div>
+    <div class="top-actions"><button class="icon-btn" id="themeToggle" aria-label="切换夜间模式"><i data-lucide="moon"></i></button><button class="icon-btn" aria-label="消息"><i data-lucide="bell"></i></button><button class="icon-btn" id="analyticsEntry" aria-label="运营数据"><i data-lucide="chart-no-axes-combined"></i></button><button class="btn primary" id="topPublish"><i data-lucide="square-pen"></i>发布</button><button class="btn" id="authEntry">登录 / 注册</button><button class="avatar hidden" id="profileAvatar" aria-label="进入个人主页">知行</button><input class="hidden" id="avatarInput" type="file" accept="image/png,image/jpeg,image/webp"></div>
   </header>
   <div class="app">
     <aside class="sidebar">
@@ -413,6 +434,8 @@
           <button class="gratitude" data-compose="gratitude"><i data-lucide="sparkles"></i>记录一份感激</button>
         </div>
       </section>
+      <section class="light-zone"><div><strong>轻松切磋：高考结束后，应该先彻底放空还是提前看看大学课程？</strong><span>不用写论文，用自己的经历说两句就好。</span></div><div class="spar-options"><button data-spar="先放空">先放空</button><button data-spar="先了解">先了解</button><button data-spar="看状态">看状态</button></div></section>
+      <div class="hot-searches" style="margin:12px 0"><button data-hot="摸鱼学点东西">#摸鱼学点东西</button><button data-hot="三角洲">#三角洲小技巧</button><button data-hot="运动">#运动不硬撑</button><button data-hot="高考">#高考后的感悟</button></div>
       <section class="search-page hidden" id="searchPage"><div class="search-page-head"><h2>搜索说吧</h2><span id="searchResultLabel">输入问题或关键词</span></div><div class="search-chat"><textarea id="searchChatInput" rows="2" placeholder="可以输入完整问题，例如：大一学生怎样建立可长期执行的学习计划？"></textarea><button id="searchChatBtn" aria-label="搜索"><i data-lucide="send"></i></button></div><div class="search-suggestions"><button data-search-suggest="如何判断一个观点是否有可靠依据">可靠依据</button><button data-search-suggest="适合大学生的跑步训练计划">跑步计划</button><button data-search-suggest="C语言指针应该怎样理解">C语言指针</button></div><div class="search-recommend"><div class="search-recommend-head"><h3>猜你喜欢</h3><span>根据你的阅读偏好与社区热度推荐</span></div><div class="recommend-list" id="searchRecommendList"></div></div></section>
       <div class="feed-tabs"><button class="feed-tab active" data-sort="recommend">为你推荐</button><button class="feed-tab" data-sort="latest">最新发布</button><button class="feed-tab" data-sort="following">我的关注</button></div>
       <section class="feed" id="feed"></section>
@@ -428,9 +451,9 @@
       <section class="analytics-page hidden" id="analyticsPage"><div class="analytics-head"><div><h2>说吧运营数据</h2><p>用于产品演示的动态模拟数据；接入服务端埋点后可替换为真实统计。</p></div><div class="live-badge"><span class="live-dot"></span>实时更新</div></div><div class="metric-grid"><div class="metric"><span>当前在线</span><strong id="metricOnline">1,286</strong><small id="onlineDelta">较5分钟前 +3.2%</small></div><div class="metric"><span>今日活跃用户</span><strong id="metricDau">18,642</strong><small>昨日同期 +8.4%</small></div><div class="metric"><span>今日新增注册</span><strong id="metricRegister">736</strong><small>手机号 61% · 社交 39%</small></div><div class="metric"><span>今日内容发布</span><strong id="metricPublish">2,418</strong><small>知识内容占 72%</small></div><div class="metric"><span>今日互动次数</span><strong id="metricInteract">36,905</strong><small>点赞、鼓励、评论、关注</small></div><div class="metric"><span>辩论空间触发</span><strong id="metricDebate">84</strong><small>触发率 0.23%</small></div><div class="metric"><span>审核拦截</span><strong id="metricBlocked">316</strong><small>发布前拦截率 1.8%</small></div><div class="metric"><span>次日留存</span><strong>46.8%</strong><small>近7日均值</small></div></div><div class="analytics-grid"><div class="chart-panel"><h3>24小时在线趋势</h3><div class="trend-chart" id="onlineTrend"></div></div><div class="chart-panel"><h3>内容分类分布</h3><div class="bar-list" id="categoryBars"></div></div><div class="chart-panel"><h3>实时事件流</h3><div class="event-stream" id="eventStream"></div></div><div class="chart-panel"><h3>社区健康指标</h3><table class="health-table"><thead><tr><th>指标</th><th>今日</th><th>目标</th></tr></thead><tbody><tr><td>知识内容占比</td><td>72%</td><td>≥70%</td></tr><tr><td>有效回答率</td><td>64%</td><td>≥60%</td></tr><tr><td>人身攻击率</td><td>0.14%</td><td>≤0.20%</td></tr><tr><td>辩论正常收尾率</td><td>91%</td><td>≥85%</td></tr><tr><td>感激鼓励互动率</td><td>38%</td><td>≥30%</td></tr></tbody></table></div></div></section>
     </main>
     <aside class="rightbar">
-      <section class="panel"><h3><span>领域创作者</span><i data-lucide="badge-check"></i></h3><div class="creator-list" id="creatorList"></div></section>
-      <section class="panel"><h3><span>理性讨论房间</span><i data-lucide="scale"></i></h3><div id="debateList"></div></section>
-      <section class="panel"><h3><span>优质文章榜</span><i data-lucide="trophy"></i></h3><div class="ranking-tabs"><button class="active" data-rank="day">今日</button><button data-rank="month">本月</button><button data-rank="year">年度</button></div><div id="rankingList"></div></section>
+      <section class="panel"><h3><span>随手翻张知识卡</span><button class="icon-btn" id="randomKnowledge" aria-label="换一张知识卡"><i data-lucide="refresh-cw"></i></button></h3><div class="random-card" id="randomCard"></div></section>
+      <section class="panel"><h3><span>30秒轻挑战</span><i data-lucide="timer"></i></h3><div class="random-card"><small>运动判断题</small><strong>刚开始跑步，速度越快，进步一定越快？</strong><div class="spar-options"><button data-challenge="no">不一定</button><button data-challenge="yes">一定</button></div><p id="challengeResult">随手选一个，不计分，也不排名。</p></div></section>
+      <section class="panel"><h3><span>这里欢迎两种表达</span><i data-lucide="message-circle-heart"></i></h3><div class="random-card"><strong>硬核深度，也欢迎人话讲解</strong><p>可以系统讲透，也可以用短句拆开一个小知识。少堆术语，多讲例子、条件和真实经验。</p></div></section>
       <section class="gratitude-band"><strong>今日感激</strong><p>“感谢实验室学长把复杂的环境配置写成了清晰步骤，让我少走了很多弯路。”</p><button class="btn small" data-compose="gratitude">写下我的感激</button></section>
     </aside>
   </div>
@@ -442,6 +465,7 @@
         <div class="modal-body">
           <div class="type-switch"><button type="button" class="active" data-type="share">知识分享</button><button type="button" data-type="question">公开提问</button><button type="button" data-type="gratitude">感激记录</button></div>
           <div class="form-grid">
+            <div class="field full"><label>内容形式</label><div class="format-switch"><button type="button" class="active" data-format="short">短句</button><button type="button" data-format="image">图文</button><button type="button" data-format="long">长文</button></div></div>
             <div class="field"><label for="majorCategory">大类 <span class="required">*</span></label><select id="majorCategory" required><option value="">请选择大类</option></select></div>
             <div class="field"><label for="subCategory">领域类型 <span class="required">*</span></label><select id="subCategory" required disabled><option value="">请先选择大类</option></select></div>
             <div class="field full"><label for="leafCategory">具体分类 <span class="required">*</span></label><select id="leafCategory" required disabled><option value="">请先选择领域类型</option></select></div>
@@ -530,10 +554,18 @@
       {title:'三角洲单排应优先搜物资还是主动找人？',people:218,status:'观点整理中'},
       {title:'高考结束后应彻底放松还是提前准备大学？',people:146,status:'多人思辨中'}
     ];
+    const knowledgeCards=[
+      {tag:'#摸鱼学点东西',title:'记忆不是“存进去”，而是“取出来”',text:'合上书主动回忆一次，通常比继续看一遍更能发现自己到底会不会。'},
+      {tag:'#三角洲小技巧',title:'撤离玩法里，收益只有离开地图后才成立',text:'进图前先定撤离条件，可以减少“来都来了”带来的连续冒险。'},
+      {tag:'#运动不硬撑',title:'刚开始跑步，能说完整句子是实用的强度参考',text:'入门期先建立持续性，再追配速；疼痛和明显不适不是“坚持一下”就能解决。'},
+      {tag:'#人话讲解',title:'估值高低不是只看一个数字',text:'同样的市盈率，在增长、行业和风险不同的公司上，含义可能完全不同。'},
+      {tag:'#编程小技巧',title:'调试先缩小问题范围',text:'不要一次盯完整程序。固定输入、打印关键变量、逐段排除，比反复重写更有效。'}
+    ];
     let currentSection = 'all';
     let currentSort = 'recommend';
     let currentCategory = '';
     let publishType = 'share';
+    let publishFormat = 'short';
     let mediaData = null;
     let notes = JSON.parse(localStorage.getItem('shuoba-private-notes') || '[]');
     let activeNoteId = null;
@@ -564,12 +596,8 @@
         btn.classList.add('active'); currentCategory = btn.dataset.sub; currentSection = 'all'; renderFeed();
       }));
     }
-    function renderCreators() {
-      $('creatorList').innerHTML = creators.map(c => `<div class="creator"><div class="avatar" style="background:${c.color}">${c.avatar}</div><div class="creator-copy"><strong>${c.name}</strong><span>${c.field}</span></div><button class="btn small follow-btn">关注</button></div>`).join('');
-      document.querySelectorAll('.follow-btn').forEach(btn => btn.addEventListener('click', () => requireAuth(()=>{ const active=btn.textContent==='已关注'; btn.textContent=active?'关注':'已关注'; btn.classList.toggle('primary',!active); })));
-      $('debateList').innerHTML = debates.map(d => `<div class="debate"><div class="debate-label"><i data-lucide="messages-square"></i>${d.status}</div><strong>${d.title}</strong><span>${d.people} 人参与 · 系统已整理主要观点</span></div>`).join('');
-      renderRanking('day');
-    }
+    function renderRandomCard(){const card=knowledgeCards[Math.floor(Math.random()*knowledgeCards.length)];$('randomCard').innerHTML=`<small>${card.tag}</small><strong>${card.title}</strong><p>${card.text}</p>`;}
+    function renderCreators(){renderRandomCard();}
     function renderRanking(range) {
       const ranked = [...posts].filter(p=>p.type==='share').sort((a,b)=>b.likes-a.likes).slice(0,3);
       const period=range==='day'?'2026年7月27日':range==='month'?'2026年7月':'2026年度';
@@ -579,10 +607,11 @@
       const tagClass = p.type==='question'?'question':p.type==='gratitude'?'gratitude':'';
       const tagText = p.type==='question'?'公开提问':p.type==='gratitude'?'感激记录':'知识分享';
       const supportLabel=p.type==='gratitude'?'鼓励':'点赞';
+      const funTag=p.type==='gratitude'?'#普通人的感悟':p.category==='运动'?'#运动不硬撑':p.category==='学习'?'#摸鱼学点东西':'#三角洲小技巧';
       const hiddenIdentity=p.author==='周知行'&&profilePrivate;const displayAuthor=hiddenIdentity?'匿名用户':p.author,displayRole=hiddenIdentity?'主页内容已隐藏':p.role,displayAvatar=hiddenIdentity?'匿':p.avatar,displayColor=hiddenIdentity?'#68736e':p.color;
       return `<article class="post" data-post="${p.id}"><div class="post-meta"><div class="author author-link" data-profile-author="${escapeHtml(displayAuthor)}"><div class="avatar" style="background:${displayColor}">${displayAvatar}</div><div class="author-info"><strong>${displayAuthor}</strong><span>${displayRole} · ${p.time}</span></div></div><span class="field-tag ${tagClass}">${tagText} · ${p.leaf||p.sub||p.category}</span></div><h2><button class="post-title-button" data-open-post="${p.id}">${p.title}</button></h2><p class="post-body">${p.body}</p><button class="read-more" data-open-post="${p.id}">阅读全文 <i data-lucide="arrow-right"></i></button>${p.image?`<img class="post-image" src="${p.image}" alt="${p.title}" loading="lazy">`:''}${p.note?`<div class="post-note">${p.note}</div>`:''}${p.answer?`<div class="answer-preview"><strong>高赞回答 · ${p.answers} 个回答</strong><p>${p.answer}</p></div>`:''}${p.tags?`<div class="tags">${p.tags.map(t=>`<span class="field-tag gratitude">${t}</span>`).join(' ')}</div>`:''}<div class="post-actions"><button class="action like-btn"><i data-lucide="${p.type==='gratitude'?'heart':'thumbs-up'}"></i><span>${supportLabel} ${p.likes}</span></button><button class="action comment-toggle"><i data-lucide="message-circle"></i><span>${p.comments}</span></button>${p.type==='share'?'<button class="action supplement-toggle"><i data-lucide="list-plus"></i>补充专区</button>':''}<button class="action"><i data-lucide="bookmark"></i>收藏</button><div class="share-wrap"><button class="action share-toggle" aria-label="打开分享方式"><i data-lucide="share-2"></i>分享</button><div class="share-menu hidden"><button data-share-platform="wechat"><i data-lucide="messages-square"></i>微信朋友圈</button><button data-share-platform="qq"><i data-lucide="message-circle"></i>QQ</button><button data-share-platform="copy"><i data-lucide="link"></i>复制分享内容</button></div></div></div>${p.type==='share'?`<div class="supplement-box hidden"><strong>补充这篇知识分享</strong><textarea placeholder="补充资料、不同条件下的经验或有依据的修正意见"></textarea><button class="btn small primary submit-supplement">提交补充</button><div class="supplement-list"></div></div>`:''}<div class="comment-box hidden"><strong>参与理性讨论</strong><textarea class="comment-input" rows="2" placeholder="在这里写下观点，Enter发送，Shift+Enter换行"></textarea><div class="comment-submit-row"><button class="btn small ghost submit-comment">发表评论</button></div><div class="mediation hidden"></div><div class="discussion-log"></div></div></article>`;
     }
-    function openArticle(postId){const p=posts.find(item=>String(item.id)===String(postId));if(!p)return;$('articleTitle').textContent=p.title;$('articleDetail').innerHTML=`<div class="article-detail-meta">${escapeHtml(p.author)} · ${escapeHtml(p.role)} · ${escapeHtml(p.time)}</div>${p.image?`<img src="${p.image}" alt="${escapeHtml(p.title)}">`:''}<div class="article-detail-content">${p.detail||`<p>${escapeHtml(p.body)}</p>`}</div>`;$('articleModal').classList.remove('hidden');document.body.style.overflow='hidden';}
+    function openArticle(postId){const p=posts.find(item=>String(item.id)===String(postId));if(!p)return;$('articleTitle').textContent=p.title;$('articleDetail').innerHTML=`<div class="article-detail-meta">${escapeHtml(p.author)} · ${escapeHtml(p.role)} · ${escapeHtml(p.time)}</div><div class="reading-modes"><button class="active" data-read-mode="quick">精简速读版</button><button data-read-mode="full">完整版</button></div><div class="quick-read" id="quickRead"><strong>先用一分钟抓住重点</strong><p>${escapeHtml(p.body)}</p>${p.note?`<p>${escapeHtml(p.note)}</p>`:''}</div><div class="hidden" id="fullRead">${p.image?`<img src="${p.image}" alt="${escapeHtml(p.title)}">`:''}<div class="article-detail-content">${p.detail||`<p>${escapeHtml(p.body)}</p>`}</div></div>`;$('articleModal').classList.remove('hidden');document.body.style.overflow='hidden';document.querySelectorAll('[data-read-mode]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-read-mode]').forEach(x=>x.classList.toggle('active',x===btn));$('quickRead').classList.toggle('hidden',btn.dataset.readMode!=='quick');$('fullRead').classList.toggle('hidden',btn.dataset.readMode!=='full');}));}
     function closeArticle(){$('articleModal').classList.add('hidden');document.body.style.overflow='';}
     function openPublicProfile(author){
       $('publicProfileTitle').textContent=author==='匿名用户'?'匿名用户主页':`${author}的主页`;
@@ -760,6 +789,11 @@
     document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>btn.dataset.section==='self'?requireAuth(()=>switchSection('self')):switchSection(btn.dataset.section)));
     document.querySelectorAll('[data-compose]').forEach(btn=>btn.addEventListener('click',()=>requireAuth(()=>openPublish(btn.dataset.compose))));
     $('topPublish').addEventListener('click',()=>requireAuth(()=>openPublish('share'))); $('mainPublish').addEventListener('click',()=>requireAuth(()=>openPublish(currentSection==='all'?'share':currentSection)));
+    $('themeToggle').addEventListener('click',()=>{const dark=document.body.classList.toggle('dark');localStorage.setItem('shuoba-theme',dark?'dark':'light');$('themeToggle').innerHTML=`<i data-lucide="${dark?'sun':'moon'}"></i>`;$('themeToggle').setAttribute('aria-label',dark?'切换日间模式':'切换夜间模式');if(window.lucide)lucide.createIcons();});
+    $('randomKnowledge').addEventListener('click',renderRandomCard);
+    document.querySelectorAll('[data-challenge]').forEach(btn=>btn.addEventListener('click',()=>{$('challengeResult').textContent=btn.dataset.challenge==='no'?'答对了。入门期先建立可持续的强度，比盲目追速度更稳。':'这个说法太绝对。速度、恢复和训练基础要一起看。';}));
+    document.querySelectorAll('[data-spar]').forEach(btn=>btn.addEventListener('click',()=>requireAuth(()=>{showToast(`已记录你的看法：${btn.dataset.spar}。轻松交流，不计输赢。`);}))); 
+    document.querySelectorAll('[data-format]').forEach(btn=>btn.addEventListener('click',()=>{publishFormat=btn.dataset.format;document.querySelectorAll('[data-format]').forEach(x=>x.classList.toggle('active',x===btn));const content=$('postContent');content.maxLength=publishFormat==='short'?300:3000;content.placeholder=publishFormat==='short'?'用几句话分享一个有用的小发现，不必写成长文。':publishFormat==='image'?'先说清图片里的重点，再补充你的经验或依据。':'分段说明背景、过程、依据和结论，让感兴趣的人继续深挖。';content.nextElementSibling.lastChild.textContent=publishFormat==='short'?'/300':'/3000';}));
     $('analyticsEntry').addEventListener('click',()=>requireAuth(()=>switchSection('analytics')));
     $('closeModal').addEventListener('click',closePublish); $('publishModal').addEventListener('click',e=>{if(e.target===$('publishModal'))closePublish();});
     document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(!$('publishModal').classList.contains('hidden'))closePublish();else if(!$('debateModal').classList.contains('hidden'))hideDebate();else if(!$('authModal').classList.contains('hidden'))closeAuth();else if(!$('articleModal').classList.contains('hidden'))closeArticle();else if(!$('publicProfileModal').classList.contains('hidden'))closePublicProfile();});
@@ -821,7 +855,7 @@
     document.querySelectorAll('[data-rank]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-rank]').forEach(x=>x.classList.toggle('active',x===btn));renderRanking(btn.dataset.rank);}));
     $('newNote').addEventListener('click',()=>{activeNoteId=null;$('noteTitle').value='';$('noteContent').value='';if(canvasReady)$('drawCanvas').getContext('2d').clearRect(0,0,$('drawCanvas').width,$('drawCanvas').height);showToast('已新建空白私密页');});
     $('saveNote').addEventListener('click',saveCurrentNote);$('eraserBtn').addEventListener('click',()=>{erasing=!erasing;$('eraserBtn').classList.toggle('primary',erasing);showToast(erasing?'已切换为橡皮':'已切换为画笔');});$('clearCanvas').addEventListener('click',()=>{if(canvasReady)$('drawCanvas').getContext('2d').clearRect(0,0,$('drawCanvas').width,$('drawCanvas').height);});
-    setAuthUI();initCategories(); renderCreators(); renderFeed(); if(window.lucide) lucide.createIcons();if(localStorage.getItem('shuoba-onboarding-seen')!=='true'){$('onboardingModal').classList.remove('hidden');document.body.style.overflow='hidden';renderOnboarding();}
+    if(localStorage.getItem('shuoba-theme')==='dark')document.body.classList.add('dark');setAuthUI();initCategories(); renderCreators(); renderFeed(); if(window.lucide) lucide.createIcons();if(localStorage.getItem('shuoba-onboarding-seen')!=='true'){$('onboardingModal').classList.remove('hidden');document.body.style.overflow='hidden';renderOnboarding();}
   </script>
 </body>
 </html>
