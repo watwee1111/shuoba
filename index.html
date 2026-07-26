@@ -1,0 +1,786 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob: https://unpkg.com https://images.unsplash.com; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://images.unsplash.com; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
+  <title>说吧 - 理性知识交流社区</title>
+  <style>
+    :root {
+      --bg: #f4f6f5;
+      --surface: #ffffff;
+      --surface-2: #edf2ef;
+      --ink: #18211d;
+      --muted: #68736e;
+      --line: #dbe2de;
+      --green: #176b4d;
+      --green-dark: #0d4d37;
+      --green-soft: #e4f1ea;
+      --coral: #c7533f;
+      --coral-soft: #fbece8;
+      --gold: #a66b09;
+      --gold-soft: #fff4dc;
+      --shadow: 0 8px 28px rgba(25, 38, 32, .07);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--bg); font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif; font-size: 15px; line-height: 1.65; letter-spacing: 0; }
+    button, input, textarea, select { font: inherit; letter-spacing: 0; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 3px solid rgba(23,107,77,.22); outline-offset: 2px; }
+    img { display: block; max-width: 100%; }
+    .topbar { position: sticky; top: 0; z-index: 20; height: 66px; display: grid; grid-template-columns: 240px minmax(280px, 620px) 1fr; align-items: center; gap: 24px; padding: 0 28px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.96); backdrop-filter: blur(10px); }
+    .brand { display: flex; align-items: center; gap: 11px; min-width: 0; }
+    .brand-mark { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 6px; color: #fff; background: var(--green-dark); font-weight: 800; font-size: 19px; }
+    .brand strong { display: block; font-size: 18px; line-height: 1.2; }
+    .brand span { display: block; color: var(--muted); font-size: 10px; }
+    .search { position: relative; }
+    .search input { width: 100%; height: 42px; padding: 0 46px 0 13px; border: 1px solid #c7d3cd; border-radius: 7px; color: var(--ink); background: #fbfcfb; box-shadow: 0 2px 8px rgba(35,58,48,.035); transition: border-color .2s, background .2s, box-shadow .2s; }
+    .search input:hover { border-color: #aebfb6; background: #fff; }
+    .search input:focus { border-color: #7fa994; background: #fff; box-shadow: 0 0 0 3px rgba(23,107,77,.08),0 5px 16px rgba(35,58,48,.06); }
+    .search button { position: absolute; right: 5px; top: 4px; width: 34px; height: 34px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 5px; color: var(--green); background: #edf4f0; transition: background .2s, transform .2s; }
+    .search button:hover { background: #e1eee7; transform: translateY(-1px); }
+    .search-popover { position: absolute; top: 46px; left: 0; right: 0; z-index: 30; padding: 14px; border: 1px solid var(--line); border-radius: 5px; background: #fff; box-shadow: var(--shadow); }
+    .search-popover strong { display: block; margin-bottom: 9px; font-size: 12px; }
+    .search-popover p { margin: -3px 0 11px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .hot-searches { display: flex; flex-wrap: wrap; gap: 7px; }
+    .hot-searches button { position: static; width: auto; height: auto; display: inline-flex; padding: 5px 8px; border: 1px solid var(--line); border-radius: 4px; color: var(--muted); background: #f8faf9; font-size: 11px; }
+    .top-actions { display: flex; justify-content: flex-end; align-items: center; gap: 9px; }
+    .icon-btn { width: 38px; height: 38px; display: grid; place-items: center; padding: 0; border: 1px solid transparent; border-radius: 5px; color: var(--muted); background: transparent; }
+    .icon-btn:hover { color: var(--ink); background: var(--surface-2); }
+    .avatar { width: 34px; height: 34px; display: grid; place-items: center; overflow: hidden; padding: 0; border: 0; border-radius: 50%; color: #fff; background: var(--coral); font-size: 12px; font-weight: 700; }
+    .btn { min-height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 7px 13px; border: 1px solid var(--line); border-radius: 5px; color: var(--ink); background: var(--surface); font-weight: 700; }
+    .btn:hover { background: #f0f4f2; }
+    .btn.primary { color: #fff; border-color: var(--green); background: var(--green); }
+    .btn.primary:hover { background: var(--green-dark); }
+    .btn.ghost { color: var(--green); border-color: transparent; background: transparent; }
+    .btn.small { min-height: 30px; padding: 4px 9px; font-size: 12px; }
+    .app { display: grid; grid-template-columns: 224px minmax(0, 760px) 286px; gap: 28px; max-width: 1360px; margin: 0 auto; padding: 26px 28px 60px; }
+    .sidebar, .rightbar { min-width: 0; }
+    .sidebar { position: sticky; top: 92px; align-self: start; }
+    .primary-nav { display: grid; gap: 4px; margin-bottom: 22px; }
+    .nav-btn { width: 100%; height: 44px; display: flex; align-items: center; gap: 11px; padding: 0 12px; border: 0; border-radius: 5px; color: var(--muted); background: transparent; font-weight: 700; text-align: left; }
+    .nav-btn:hover { color: var(--ink); background: rgba(255,255,255,.7); }
+    .nav-btn.active { color: var(--green-dark); background: var(--green-soft); }
+    .nav-btn i { width: 19px; }
+    .side-heading { display: flex; justify-content: space-between; align-items: center; margin: 0 8px 8px; color: var(--muted); font-size: 11px; font-weight: 700; }
+    .category-list { display: grid; gap: 2px; }
+    .category { border-radius: 5px; overflow: hidden; }
+    .category > button { width: 100%; min-height: 36px; display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border: 0; color: var(--ink); background: transparent; text-align: left; }
+    .category > button:hover { background: rgba(255,255,255,.7); }
+    .category > button span { display: flex; align-items: center; gap: 8px; }
+    .category.open > button { color: var(--green-dark); font-weight: 700; background: #fff; }
+    .subcats { display: none; padding: 3px 0 6px 36px; }
+    .category.open .subcats { display: grid; }
+    .subcats button { padding: 4px 0; border: 0; color: var(--muted); background: transparent; text-align: left; font-size: 12px; }
+    .subcats button:hover, .subcats button.active { color: var(--green); font-weight: 700; }
+    .subcat-group { display: grid; }
+    .subcat-toggle { display: flex; align-items: center; justify-content: space-between; }
+    .leafcats { display: none; padding: 2px 0 6px 12px; border-left: 1px solid var(--line); }
+    .subcat-group.open .leafcats { display: grid; }
+    .leafcats button { color: #78837e; font-size: 11px; }
+    .main { min-width: 0; }
+    .welcome { padding: 22px 24px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); box-shadow: var(--shadow); }
+    .welcome-top { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; }
+    .welcome h1 { margin: 0 0 5px; font-size: 22px; line-height: 1.35; }
+    .welcome p { margin: 0; color: var(--muted); font-size: 13px; }
+    .composer-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 18px; }
+    .composer-row button { min-height: 42px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--line); border-radius: 5px; color: var(--ink); background: #f8faf9; font-weight: 700; }
+    .composer-row button:hover { border-color: #b9ccc1; background: var(--green-soft); }
+    .composer-row button.gratitude:hover { border-color: #e4c683; background: var(--gold-soft); }
+    .feed-tabs { display: flex; align-items: center; gap: 22px; margin: 24px 0 10px; border-bottom: 1px solid var(--line); }
+    .feed-tab { position: relative; padding: 10px 2px; border: 0; color: var(--muted); background: transparent; font-weight: 700; }
+    .feed-tab.active { color: var(--ink); }
+    .feed-tab.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; background: var(--green); }
+    .feed { display: grid; gap: 12px; }
+    .post { padding: 21px 22px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); }
+    .post:hover { box-shadow: var(--shadow); }
+    .post-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 13px; }
+    .author { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .author-link { cursor: pointer; }
+    .author-link:hover .author-info strong { color: var(--green); }
+    .author-info strong, .author-info span { display: block; }
+    .author-info strong { font-size: 13px; }
+    .author-info span { color: var(--muted); font-size: 11px; }
+    .field-tag { padding: 3px 7px; border-radius: 3px; color: var(--green-dark); background: var(--green-soft); font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .field-tag.question { color: #7e4d00; background: var(--gold-soft); }
+    .field-tag.gratitude { color: #9b3e31; background: var(--coral-soft); }
+    .post h2 { margin: 0 0 8px; font-size: 19px; line-height: 1.45; }
+    .post-body { margin: 0; color: #3d4742; }
+    .post-image { width: 100%; aspect-ratio: 16/7; margin-top: 14px; object-fit: cover; border-radius: 5px; background: var(--surface-2); }
+    .post-note { margin-top: 13px; padding: 10px 12px; border-left: 3px solid var(--green); background: var(--green-soft); color: var(--green-dark); font-size: 12px; }
+    .post-actions { display: flex; align-items: center; gap: 6px; margin-top: 15px; padding-top: 12px; border-top: 1px solid var(--line); }
+    .share-wrap { position: relative; }
+    .share-menu { position: absolute; right: 0; bottom: 42px; z-index: 8; width: 154px; padding: 6px; border: 1px solid var(--line); border-radius: 7px; background: #fff; box-shadow: var(--shadow); }
+    .share-menu button { width: 100%; display: flex; align-items: center; gap: 8px; padding: 9px 10px; border: 0; border-radius: 5px; color: var(--ink); background: transparent; text-align: left; }
+    .share-menu button:hover { background: var(--surface-2); }
+    .share-menu svg { width: 16px; height: 16px; color: var(--green); }
+    .action { min-height: 32px; display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px; border: 0; border-radius: 4px; color: var(--muted); background: transparent; font-size: 12px; }
+    .action:hover { color: var(--ink); background: var(--surface-2); }
+    .action.liked { color: var(--coral); background: var(--coral-soft); }
+    .action:last-child { margin-left: auto; }
+    .answer-preview { margin-top: 15px; padding-top: 14px; border-top: 1px solid var(--line); }
+    .answer-preview strong { font-size: 13px; }
+    .answer-preview p { margin: 5px 0 0; color: var(--muted); font-size: 13px; }
+    .rightbar { display: grid; align-content: start; gap: 16px; }
+    .panel { padding: 18px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); }
+    .panel h3 { display: flex; align-items: center; justify-content: space-between; margin: 0 0 13px; font-size: 15px; }
+    .creator-list { display: grid; gap: 14px; }
+    .creator { display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 9px; }
+    .creator-copy { min-width: 0; }
+    .creator-copy strong, .creator-copy span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .creator-copy strong { font-size: 12px; }
+    .creator-copy span { color: var(--muted); font-size: 10px; }
+    .debate { padding: 12px 0; border-top: 1px solid var(--line); }
+    .debate:first-of-type { padding-top: 0; border-top: 0; }
+    .debate:last-child { padding-bottom: 0; }
+    .debate-label { display: flex; align-items: center; gap: 5px; color: var(--coral); font-size: 10px; font-weight: 700; }
+    .debate strong { display: block; margin: 4px 0; font-size: 12px; line-height: 1.5; }
+    .debate span { color: var(--muted); font-size: 10px; }
+    .gratitude-band { padding: 18px; color: #633c08; border: 1px solid #ecd39e; border-radius: 7px; background: var(--gold-soft); }
+    .gratitude-band strong { display: block; margin-bottom: 4px; }
+    .gratitude-band p { margin: 0 0 10px; font-size: 12px; }
+    .empty { padding: 52px 24px; border: 1px dashed #bfcac4; text-align: center; color: var(--muted); background: rgba(255,255,255,.5); }
+    .empty i { width: 30px; height: 30px; margin-bottom: 8px; }
+    .self-space { display: grid; grid-template-columns: 210px 1fr; min-height: 650px; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; background: var(--surface); box-shadow: var(--shadow); }
+    .note-list { padding: 16px 10px; border-right: 1px solid var(--line); background: #eef3f0; }
+    .note-list-head { display: flex; align-items: center; justify-content: space-between; padding: 0 6px 11px; }
+    .note-list-head strong { font-size: 13px; }
+    .note-item { width: 100%; display: block; margin-bottom: 5px; padding: 9px 10px; border: 0; border-radius: 4px; color: var(--ink); background: transparent; text-align: left; }
+    .note-item:hover, .note-item.active { background: #fff; }
+    .note-item strong, .note-item span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .note-item strong { font-size: 12px; }
+    .note-item span { color: var(--muted); font-size: 10px; }
+    .note-editor { min-width: 0; padding: 24px; background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 31px, #e7ece9 32px); }
+    .note-title { width: 100%; padding: 0 0 12px; border: 0; border-bottom: 1px solid var(--line); color: var(--ink); background: transparent; font-size: 21px; font-weight: 700; }
+    .note-content { width: 100%; min-height: 250px; margin-top: 12px; padding: 0; resize: vertical; border: 0; color: #2f3934; background: transparent; line-height: 32px; }
+    .drawing-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin: 15px 0 8px; padding-top: 12px; border-top: 1px solid var(--line); }
+    .drawing-tools input[type="color"] { width: 34px; height: 34px; padding: 2px; border: 1px solid var(--line); border-radius: 4px; background: #fff; }
+    .drawing-tools input[type="range"] { width: 100px; }
+    .draw-canvas { width: 100%; height: 240px; display: block; touch-action: none; border: 1px solid var(--line); border-radius: 5px; background: #fff; }
+    .privacy-note { display: flex; align-items: center; gap: 7px; margin-top: 10px; color: var(--muted); font-size: 11px; }
+    .profile-page { display: grid; gap: 16px; }
+    .profile-head { padding: 24px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); box-shadow: var(--shadow); }
+    .profile-main { display: flex; align-items: center; gap: 16px; }
+    .profile-avatar { width: 72px; height: 72px; flex: 0 0 72px; display: grid; place-items: center; overflow: hidden; border-radius: 50%; color: #fff; background: var(--coral); background-size: cover; background-position: center; font-weight: 800; }
+    .profile-copy { min-width: 0; flex: 1; }
+    .profile-copy h2 { margin: 0; font-size: 21px; }
+    .profile-copy p { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+    .profile-stats { display: flex; gap: 28px; margin-top: 18px; padding-top: 15px; border-top: 1px solid var(--line); }
+    .profile-stat { border: 0; color: var(--muted); background: transparent; text-align: left; }
+    .profile-stat strong, .profile-stat span { display: block; }
+    .profile-stat strong { color: var(--ink); font-size: 17px; }
+    .profile-stat.active span { color: var(--green); font-weight: 700; }
+    .daily-checkin { display: grid; grid-template-columns: minmax(260px, 1.4fr) 1fr auto; gap: 14px; align-items: end; padding: 18px 20px; border: 1px solid var(--line); border-radius: 7px; background: var(--green-soft); }
+    .daily-checkin .field select, .daily-checkin .field input { background: rgba(255,255,255,.85); }
+    .mood-draw-wrap { display: grid; gap: 7px; }
+    .mood-draw-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .mood-draw-head strong { font-size: 12px; }
+    .mood-tools { display: flex; align-items: center; gap: 6px; }
+    .mood-tools input[type="color"] { width: 30px; height: 30px; padding: 2px; border: 1px solid var(--line); border-radius: 4px; background: #fff; }
+    .mood-canvas { width: 100%; height: 130px; display: block; touch-action: none; border: 1px solid #c5d5cc; border-radius: 5px; background: #fff; }
+    .profile-list { padding: 20px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); }
+    .profile-list h3 { margin: 0 0 13px; font-size: 16px; }
+    .profile-privacy { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; padding-top: 13px; border-top: 1px solid var(--line); }
+    .profile-privacy label { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; }
+    .profile-privacy span { color: var(--muted); font-size: 10px; }
+    .private-profile-view { padding: 48px 24px; text-align: center; }
+    .private-profile-view i { width: 38px; height: 38px; color: var(--green); }
+    .private-profile-view h3 { margin: 10px 0 5px; }
+    .private-profile-view p { margin: 0; color: var(--muted); font-size: 12px; }
+    .analytics-page { display: grid; gap: 16px; }
+    .analytics-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 20px 22px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); }
+    .analytics-head h2 { margin: 0 0 4px; font-size: 20px; }
+    .analytics-head p { margin: 0; color: var(--muted); font-size: 11px; }
+    .live-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 4px; color: var(--green-dark); background: var(--green-soft); font-size: 10px; font-weight: 700; }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: livePulse 1.5s infinite; }
+    @keyframes livePulse { 50% { opacity: .35; } }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .metric { padding: 15px 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+    .metric span { display: block; color: var(--muted); font-size: 10px; }
+    .metric strong { display: block; margin: 4px 0 2px; font-size: 23px; }
+    .metric small { color: var(--green); font-size: 9px; }
+    .analytics-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 12px; }
+    .chart-panel { padding: 18px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); }
+    .chart-panel h3 { margin: 0 0 14px; font-size: 14px; }
+    .bar-list { display: grid; gap: 11px; }
+    .bar-row { display: grid; grid-template-columns: 72px 1fr 42px; align-items: center; gap: 8px; font-size: 10px; }
+    .bar-track { height: 8px; overflow: hidden; border-radius: 3px; background: var(--surface-2); }
+    .bar-value { height: 100%; background: var(--green); transition: width .4s; }
+    .trend-chart { height: 180px; display: flex; align-items: end; gap: 7px; padding-top: 14px; border-bottom: 1px solid var(--line); }
+    .trend-column { min-width: 0; flex: 1; display: grid; align-content: end; gap: 4px; text-align: center; }
+    .trend-bar { min-height: 5px; border-radius: 3px 3px 0 0; background: var(--green); transition: height .4s; }
+    .trend-column span { color: var(--muted); font-size: 8px; }
+    .event-stream { max-height: 250px; overflow-y: auto; display: grid; gap: 8px; }
+    .event-item { display: grid; grid-template-columns: 56px 1fr; gap: 8px; padding-bottom: 7px; border-bottom: 1px solid var(--line); font-size: 10px; }
+    .event-item time { color: var(--muted); }
+    .health-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+    .health-table th, .health-table td { padding: 8px 5px; border-bottom: 1px solid var(--line); text-align: left; }
+    .health-table th { color: var(--muted); font-weight: 500; }
+    .person-row { display: grid; grid-template-columns: 38px 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+    .person-row:first-of-type { border-top: 0; }
+    .person-row strong, .person-row span { display: block; }
+    .person-row strong { font-size: 12px; }
+    .person-row span { color: var(--muted); font-size: 10px; }
+    .supplement-box, .comment-box { margin-top: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 5px; background: #f8faf9; }
+    .supplement-box textarea { width: 100%; min-height: 72px; padding: 8px; resize: vertical; border: 1px solid var(--line); border-radius: 4px; }
+    .comment-box { background: transparent; border-width: 0 0 1px; border-radius: 0; padding: 12px 2px; }
+    .comment-input { width: 100%; min-height: 66px; max-height: 180px; padding: 10px 12px; resize: none; overflow-y: auto; border: 1px solid #cbd6d0; border-radius: 7px; color: var(--ink); background: linear-gradient(180deg,#ffffff 0%,#f8faf9 100%); line-height: 1.65; transition: border-color .2s, box-shadow .2s, background .2s; }
+    .comment-input:focus { border-color: #8fb4a2; background: #fff; box-shadow: 0 4px 14px rgba(23,107,77,.08); }
+    .comment-submit-row { display: flex; justify-content: flex-end; margin-top: 7px; }
+    .supplement-list { display: grid; gap: 7px; margin-top: 10px; }
+    .supplement-item { padding: 8px 10px; border-left: 3px solid #9dbbad; background: #fff; color: var(--muted); font-size: 12px; }
+    .mediation { margin-top: 8px; padding: 9px 10px; border-left: 3px solid var(--gold); color: #67440b; background: var(--gold-soft); font-size: 11px; }
+    .ranking-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
+    .ranking-tabs button { flex: 1; padding: 5px; border: 1px solid var(--line); border-radius: 4px; color: var(--muted); background: #fff; font-size: 11px; }
+    .ranking-tabs button.active { color: #fff; border-color: var(--green); background: var(--green); }
+    .rank-item { display: grid; grid-template-columns: 24px 1fr; gap: 7px; padding: 9px 0; border-top: 1px solid var(--line); }
+    .rank-item:first-child { border-top: 0; }
+    .rank-no { color: var(--gold); font-weight: 800; }
+    .rank-item strong { display: block; font-size: 11px; line-height: 1.45; }
+    .rank-item span { color: var(--muted); font-size: 9px; }
+    .media-preview { display: flex; align-items: center; gap: 8px; margin-top: 8px; color: var(--muted); font-size: 11px; }
+    .media-preview img { width: 80px; height: 54px; object-fit: cover; border-radius: 4px; }
+    .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 5px; }
+    .switch-row label { font-size: 12px; font-weight: 700; }
+    .debate-modal { width: min(820px, 100%); }
+    .debate-rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+    .debate-rule { padding: 10px; border: 1px solid var(--line); border-radius: 5px; background: #f8faf9; }
+    .debate-rule strong { display: block; font-size: 11px; }
+    .debate-rule span { color: var(--muted); font-size: 10px; }
+    .debate-mode { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 13px; padding: 4px; background: var(--surface-2); }
+    .debate-mode button { padding: 8px; border: 0; border-radius: 4px; color: var(--muted); background: transparent; font-weight: 700; }
+    .debate-mode button.active { color: var(--green-dark); background: #fff; }
+    .debate-status { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 9px; color: var(--muted); font-size: 11px; }
+    .debate-thread { min-height: 220px; max-height: 340px; overflow-y: auto; display: grid; align-content: start; gap: 9px; padding: 14px; border: 1px solid var(--line); background: #f8faf9; }
+    .debate-message { max-width: 82%; padding: 9px 11px; border-radius: 5px; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+    .debate-message.side-b { justify-self: end; border-right: 3px solid var(--coral); }
+    .debate-message.side-a { border-left: 3px solid var(--green); }
+    .debate-message.ai { max-width: 100%; color: #67440b; border-left: 3px solid var(--gold); background: var(--gold-soft); }
+    .debate-message strong { display: block; font-size: 10px; }
+    .debate-message p { margin: 2px 0 0; font-size: 12px; }
+    .debate-compose { display: grid; gap: 8px; margin-top: 12px; }
+    .debate-compose textarea { width: 100%; min-height: 90px; padding: 10px; resize: vertical; border: 1px solid var(--line); border-radius: 5px; }
+    .debate-compose-actions { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+    .debate-summary { padding: 14px; border: 1px solid #c9d8d0; background: var(--green-soft); }
+    .discussion-log { display: grid; gap: 7px; margin-top: 9px; }
+    .discussion-entry { padding: 7px 9px; border-left: 2px solid var(--line); color: var(--muted); background: #fff; font-size: 11px; }
+    .auth-modal { width: min(460px, 100%); }
+    .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 18px; border-bottom: 1px solid var(--line); }
+    .auth-tabs button { padding: 10px; border: 0; color: var(--muted); background: transparent; font-weight: 700; }
+    .auth-tabs button.active { color: var(--green); border-bottom: 2px solid var(--green); }
+    .code-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+    .social-auth { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+    .auth-divider { display: flex; align-items: center; gap: 10px; margin: 17px 0 5px; color: var(--muted); font-size: 10px; }
+    .auth-divider::before, .auth-divider::after { content: ""; height: 1px; flex: 1; background: var(--line); }
+    .search-page { margin-top: 16px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); box-shadow: var(--shadow); }
+    .search-page-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .search-page-head h2 { margin: 0; font-size: 17px; }
+    .search-page-head span { color: var(--muted); font-size: 11px; }
+    .search-chat { position: relative; }
+    .search-chat textarea { width: 100%; min-height: 76px; max-height: 180px; padding: 12px 52px 12px 14px; resize: none; overflow-y: auto; border: 1px solid #cbd6d0; border-radius: 7px; color: var(--ink); background: linear-gradient(180deg,#ffffff 0%,#f8faf9 100%); line-height: 1.65; }
+    .search-chat textarea:focus { border-color: #8fb4a2; box-shadow: 0 4px 14px rgba(23,107,77,.08); }
+    .search-chat button { position: absolute; right: 9px; bottom: 10px; width: 34px; height: 34px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 5px; color: #fff; background: var(--green); }
+    .search-suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .search-suggestions button { padding: 4px 8px; border: 0; border-radius: 4px; color: var(--muted); background: var(--surface-2); font-size: 10px; }
+    .search-recommend { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .search-recommend-head { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .search-recommend-head h3 { margin: 0; font-size: 15px; }
+    .search-recommend-head span { color: var(--muted); font-size: 10px; }
+    .recommend-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+    .recommend-item { min-width: 0; padding: 11px 12px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: #fff; text-align: left; }
+    .recommend-item:hover { border-color: #9eb7aa; background: #f8fbf9; }
+    .recommend-item strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+    .recommend-item span { display: block; margin-top: 5px; color: var(--muted); font-size: 10px; }
+    .modal-backdrop { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 20px; background: rgba(12,20,16,.52); }
+    .modal { width: min(720px, 100%); max-height: calc(100vh - 40px); overflow-y: auto; border-radius: 7px; background: var(--surface); box-shadow: 0 20px 60px rgba(0,0,0,.24); }
+    .modal-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: 17px 20px; border-bottom: 1px solid var(--line); background: var(--surface); }
+    .modal-head h2 { margin: 0; font-size: 18px; }
+    .modal-body { padding: 20px; }
+    .type-switch { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; padding: 4px; background: var(--surface-2); }
+    .type-switch button { min-height: 36px; border: 0; border-radius: 4px; color: var(--muted); background: transparent; font-weight: 700; }
+    .type-switch button.active { color: var(--green-dark); background: #fff; box-shadow: 0 1px 5px rgba(0,0,0,.08); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+    .field { display: grid; gap: 6px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { font-size: 12px; font-weight: 700; }
+    .required { color: var(--coral); }
+    .field input, .field textarea, .field select { width: 100%; border: 1px solid var(--line); border-radius: 5px; color: var(--ink); background: #fff; }
+    .field input, .field select { height: 40px; padding: 0 11px; }
+    .field select { cursor: pointer; }
+    .field select:disabled { cursor: not-allowed; color: #89948e; background: #f1f4f2; }
+    .field textarea { min-height: 180px; resize: vertical; padding: 11px; line-height: 1.7; }
+    .counter { justify-self: end; color: var(--muted); font-size: 10px; }
+    .media-row { display: flex; gap: 8px; }
+    .media-btn { min-height: 38px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border: 1px dashed #bac8c0; border-radius: 5px; color: var(--muted); background: #f8faf9; }
+    .rule-note { margin-top: 15px; padding: 11px 12px; border-left: 3px solid var(--green); color: var(--muted); background: var(--green-soft); font-size: 11px; }
+    .moderation { display: none; margin-top: 12px; padding: 11px 12px; border: 1px solid #efbcb3; color: #8e3325; background: var(--coral-soft); font-size: 12px; }
+    .moderation.show { display: block; }
+    .modal-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 20px; border-top: 1px solid var(--line); }
+    .safety { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 10px; }
+    .toast { position: fixed; z-index: 100; left: 50%; bottom: 28px; transform: translateX(-50%); min-width: 260px; padding: 11px 16px; color: #fff; border-radius: 5px; background: var(--green-dark); box-shadow: var(--shadow); text-align: center; }
+    .hidden { display: none !important; }
+    .lucide { width: 17px; height: 17px; stroke-width: 2; }
+    @media (max-width: 1120px) {
+      .topbar { grid-template-columns: 210px 1fr auto; }
+      .app { grid-template-columns: 210px minmax(0, 1fr); }
+      .rightbar { display: none; }
+    }
+    @media (max-width: 760px) {
+      .topbar { height: auto; min-height: 62px; grid-template-columns: 1fr auto; padding: 10px 14px; gap: 10px; }
+      .brand span { display: none; }
+      .search { grid-column: 1 / -1; grid-row: 2; }
+      .top-actions .icon-btn { display: none; }
+      .app { display: block; padding: 14px 12px 48px; }
+      .sidebar { position: static; margin-bottom: 14px; }
+      .primary-nav { grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 0; }
+      .nav-btn { height: 42px; justify-content: center; padding: 0 4px; font-size: 11px; }
+      .nav-btn i { display: none; }
+      .side-heading, .category-list { display: none; }
+      .welcome { padding: 18px 16px; }
+      .welcome-top { display: block; }
+      .welcome-top .btn { margin-top: 12px; }
+      .composer-row { grid-template-columns: 1fr; }
+      .post { padding: 18px 16px; }
+      .post h2 { font-size: 17px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .recommend-list { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .modal-foot { align-items: stretch; flex-direction: column; }
+      .modal-foot .btn { width: 100%; }
+      .primary-nav { grid-template-columns: repeat(5, 1fr); }
+      .self-space { grid-template-columns: 1fr; }
+      .note-list { border-right: 0; border-bottom: 1px solid var(--line); }
+      .note-editor { padding: 18px 14px; }
+      .profile-main { align-items: flex-start; flex-wrap: wrap; }
+      .daily-checkin { grid-template-columns: 1fr; }
+      .profile-stats { justify-content: space-between; gap: 8px; }
+      .debate-rules { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: 1fr 1fr; }
+      .analytics-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark">说</div><div><strong>说吧</strong><span>求知辩思，一吐为快</span></div></div>
+    <div class="search"><input id="searchInput" type="search" placeholder="搜索文章、问题、领域或创作者" aria-label="全局搜索"><button id="searchBtn" aria-label="搜索"><i data-lucide="search"></i></button><div class="search-popover hidden" id="searchPopover"><strong>此刻，大家正在认真寻找答案</strong><p>从一个真实问题出发，也许下一篇内容就能帮你少走一段弯路。</p><div class="hot-searches"><button data-hot="如何建立有效学习计划">大一如何真正学会自律</button><button data-hot="大学生力量训练">零基础力量训练</button><button data-hot="C语言指针">终于有人讲懂C语言指针</button><button data-hot="职业选择">第一份工作怎么选</button></div></div></div>
+    <div class="top-actions"><button class="icon-btn" aria-label="消息"><i data-lucide="bell"></i></button><button class="icon-btn" id="analyticsEntry" aria-label="运营数据"><i data-lucide="chart-no-axes-combined"></i></button><button class="btn primary" id="topPublish"><i data-lucide="square-pen"></i>发布</button><button class="btn" id="authEntry">登录 / 注册</button><button class="avatar hidden" id="profileAvatar" aria-label="进入个人主页">知行</button><input class="hidden" id="avatarInput" type="file" accept="image/png,image/jpeg,image/webp"></div>
+  </header>
+  <div class="app">
+    <aside class="sidebar">
+      <nav class="primary-nav" aria-label="主要板块">
+        <button class="nav-btn active" data-section="all"><i data-lucide="house"></i>综合首页</button>
+        <button class="nav-btn" data-section="share"><i data-lucide="book-open"></i>知识分享</button>
+        <button class="nav-btn" data-section="question"><i data-lucide="circle-help"></i>公开提问</button>
+        <button class="nav-btn" data-section="gratitude"><i data-lucide="heart-handshake"></i>感激专区</button>
+        <button class="nav-btn" data-section="self"><i data-lucide="notebook-pen"></i>说给自己</button>
+      </nav>
+      <div class="side-heading"><span>分类浏览</span><i data-lucide="chevrons-up-down"></i></div>
+      <div class="category-list" id="categoryList"></div>
+    </aside>
+    <main class="main">
+      <section class="welcome">
+        <div class="welcome-top"><div><h1 id="sectionTitle">今天想了解什么？</h1><p id="sectionDesc">从真实经验和专业见解中获得答案，也把你的知识留给后来的人。</p></div><button class="btn primary" id="mainPublish"><i data-lucide="plus"></i>发起分享</button></div>
+        <div class="composer-row">
+          <button data-compose="share"><i data-lucide="file-text"></i>写一篇知识分享</button>
+          <button data-compose="question"><i data-lucide="messages-square"></i>提出一个具体问题</button>
+          <button class="gratitude" data-compose="gratitude"><i data-lucide="sparkles"></i>记录一份感激</button>
+        </div>
+      </section>
+      <section class="search-page hidden" id="searchPage"><div class="search-page-head"><h2>搜索说吧</h2><span id="searchResultLabel">输入问题或关键词</span></div><div class="search-chat"><textarea id="searchChatInput" rows="2" placeholder="可以输入完整问题，例如：大一学生怎样建立可长期执行的学习计划？"></textarea><button id="searchChatBtn" aria-label="搜索"><i data-lucide="send"></i></button></div><div class="search-suggestions"><button data-search-suggest="如何判断一个观点是否有可靠依据">可靠依据</button><button data-search-suggest="适合大学生的跑步训练计划">跑步计划</button><button data-search-suggest="C语言指针应该怎样理解">C语言指针</button></div><div class="search-recommend"><div class="search-recommend-head"><h3>猜你喜欢</h3><span>根据你的阅读偏好与社区热度推荐</span></div><div class="recommend-list" id="searchRecommendList"></div></div></section>
+      <div class="feed-tabs"><button class="feed-tab active" data-sort="recommend">为你推荐</button><button class="feed-tab" data-sort="latest">最新发布</button><button class="feed-tab" data-sort="following">我的关注</button></div>
+      <section class="feed" id="feed"></section>
+      <section class="self-space hidden" id="selfSpace">
+        <aside class="note-list"><div class="note-list-head"><strong>我的记事本</strong><button class="icon-btn" id="newNote" aria-label="新建笔记"><i data-lucide="file-plus-2"></i></button></div><div id="noteItems"></div></aside>
+        <div class="note-editor"><input class="note-title" id="noteTitle" maxlength="80" placeholder="给这页写一个题目"><textarea class="note-content" id="noteContent" placeholder="只写给自己。可以记录想法、计划、复盘或暂时不想公开的话……"></textarea><div class="drawing-tools"><strong>随手画</strong><input id="penColor" type="color" value="#176b4d" aria-label="画笔颜色"><input id="penSize" type="range" min="1" max="16" value="3" aria-label="画笔粗细"><button class="btn small" id="eraserBtn"><i data-lucide="eraser"></i>橡皮</button><button class="btn small" id="clearCanvas"><i data-lucide="trash-2"></i>清空画布</button><button class="btn small primary" id="saveNote"><i data-lucide="save"></i>保存本页</button></div><canvas class="draw-canvas" id="drawCanvas"></canvas><div class="privacy-note"><i data-lucide="lock-keyhole"></i>仅保存在当前设备，不进入公开内容流，其他用户无法查看。</div></div>
+      </section>
+      <section class="profile-page hidden" id="profilePage">
+        <div class="profile-head"><div class="profile-main"><div class="profile-avatar" id="profileLargeAvatar">周</div><div class="profile-copy"><h2>周知行</h2><p>愿意把问题说清楚，也愿意认真听完不同答案。</p></div><button class="btn small" id="changeAvatar"><i data-lucide="camera"></i>更换头像</button></div><div class="profile-stats"><button class="profile-stat active" data-profile-tab="posts"><strong id="myPostCount">0</strong><span>公开发布</span></button><button class="profile-stat" data-profile-tab="following"><strong>3</strong><span>关注</span></button><button class="profile-stat" data-profile-tab="fans"><strong>28</strong><span>粉丝</span></button></div><div class="profile-privacy"><label><input id="privateProfileToggle" type="checkbox">匿名主页</label><span>开启后，其他人进入主页看不到任何个人内容</span><button class="btn small" id="previewPublicProfile"><i data-lucide="eye"></i>预览他人视角</button></div></div>
+        <div class="daily-checkin"><div class="mood-draw-wrap"><div class="mood-draw-head"><strong>画出今天的心情</strong><div class="mood-tools"><input id="moodColor" type="color" value="#c7533f" aria-label="心情画笔颜色"><button class="btn small" id="clearMood"><i data-lucide="eraser"></i>重画</button></div></div><canvas class="mood-canvas" id="moodCanvas" aria-label="今日心情画布"></canvas></div><div class="field"><label for="sleepHours">昨晚睡眠时间（小时）</label><input id="sleepHours" type="number" min="0" max="24" step="0.5" placeholder="例如 7.5"></div><button class="btn primary" id="saveDaily"><i data-lucide="save"></i>记录今天</button></div>
+        <div class="profile-list"><h3 id="profileListTitle">我的公开发布</h3><div id="profileListContent"></div></div>
+      </section>
+      <section class="analytics-page hidden" id="analyticsPage"><div class="analytics-head"><div><h2>说吧运营数据</h2><p>用于产品演示的动态模拟数据；接入服务端埋点后可替换为真实统计。</p></div><div class="live-badge"><span class="live-dot"></span>实时更新</div></div><div class="metric-grid"><div class="metric"><span>当前在线</span><strong id="metricOnline">1,286</strong><small id="onlineDelta">较5分钟前 +3.2%</small></div><div class="metric"><span>今日活跃用户</span><strong id="metricDau">18,642</strong><small>昨日同期 +8.4%</small></div><div class="metric"><span>今日新增注册</span><strong id="metricRegister">736</strong><small>手机号 61% · 社交 39%</small></div><div class="metric"><span>今日内容发布</span><strong id="metricPublish">2,418</strong><small>知识内容占 72%</small></div><div class="metric"><span>今日互动次数</span><strong id="metricInteract">36,905</strong><small>点赞、鼓励、评论、关注</small></div><div class="metric"><span>辩论空间触发</span><strong id="metricDebate">84</strong><small>触发率 0.23%</small></div><div class="metric"><span>审核拦截</span><strong id="metricBlocked">316</strong><small>发布前拦截率 1.8%</small></div><div class="metric"><span>次日留存</span><strong>46.8%</strong><small>近7日均值</small></div></div><div class="analytics-grid"><div class="chart-panel"><h3>24小时在线趋势</h3><div class="trend-chart" id="onlineTrend"></div></div><div class="chart-panel"><h3>内容分类分布</h3><div class="bar-list" id="categoryBars"></div></div><div class="chart-panel"><h3>实时事件流</h3><div class="event-stream" id="eventStream"></div></div><div class="chart-panel"><h3>社区健康指标</h3><table class="health-table"><thead><tr><th>指标</th><th>今日</th><th>目标</th></tr></thead><tbody><tr><td>知识内容占比</td><td>72%</td><td>≥70%</td></tr><tr><td>有效回答率</td><td>64%</td><td>≥60%</td></tr><tr><td>人身攻击率</td><td>0.14%</td><td>≤0.20%</td></tr><tr><td>辩论正常收尾率</td><td>91%</td><td>≥85%</td></tr><tr><td>感激鼓励互动率</td><td>38%</td><td>≥30%</td></tr></tbody></table></div></div></section>
+    </main>
+    <aside class="rightbar">
+      <section class="panel"><h3><span>领域创作者</span><i data-lucide="badge-check"></i></h3><div class="creator-list" id="creatorList"></div></section>
+      <section class="panel"><h3><span>理性讨论房间</span><i data-lucide="scale"></i></h3><div id="debateList"></div></section>
+      <section class="panel"><h3><span>优质文章榜</span><i data-lucide="trophy"></i></h3><div class="ranking-tabs"><button class="active" data-rank="day">今日</button><button data-rank="month">本月</button><button data-rank="year">年度</button></div><div id="rankingList"></div></section>
+      <section class="gratitude-band"><strong>今日感激</strong><p>“感谢实验室学长把复杂的环境配置写成了清晰步骤，让我少走了很多弯路。”</p><button class="btn small" data-compose="gratitude">写下我的感激</button></section>
+    </aside>
+  </div>
+
+  <div class="modal-backdrop hidden" id="publishModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal-head"><h2 id="modalTitle">发布知识分享</h2><button class="icon-btn" id="closeModal" aria-label="关闭"><i data-lucide="x"></i></button></div>
+      <form id="publishForm">
+        <div class="modal-body">
+          <div class="type-switch"><button type="button" class="active" data-type="share">知识分享</button><button type="button" data-type="question">公开提问</button><button type="button" data-type="gratitude">感激记录</button></div>
+          <div class="form-grid">
+            <div class="field"><label for="majorCategory">大类 <span class="required">*</span></label><select id="majorCategory" required><option value="">请选择大类</option></select></div>
+            <div class="field"><label for="subCategory">领域类型 <span class="required">*</span></label><select id="subCategory" required disabled><option value="">请先选择大类</option></select></div>
+            <div class="field full"><label for="leafCategory">具体分类 <span class="required">*</span></label><select id="leafCategory" required disabled><option value="">请先选择领域类型</option></select></div>
+            <div class="field full"><label for="postTitle">标题 <span class="required">*</span></label><input id="postTitle" maxlength="60" placeholder="用一句话准确概括内容" required><span class="counter"><span id="titleCount">0</span>/60</span></div>
+            <div class="field full"><label for="postContent">正文 <span class="required">*</span></label><textarea id="postContent" maxlength="3000" placeholder="先说明背景和问题，再给出依据、过程与结论。避免单纯情绪宣泄。" required></textarea><span class="counter"><span id="contentCount">0</span>/3000</span></div>
+            <div class="field full" id="gratitudeTagsWrap"><label for="gratitudeTags">感激标签 <span class="required">*</span></label><input id="gratitudeTags" placeholder="例如：老师帮助、同学陪伴、成长收获"></div>
+            <div class="field full"><label>添加内容</label><div class="media-row"><button class="media-btn" id="imagePick" type="button"><i data-lucide="image-plus"></i>图片</button><button class="media-btn" id="videoPick" type="button"><i data-lucide="video"></i>短视频</button><input class="hidden" id="mediaInput" type="file" accept="image/png,image/jpeg,image/webp,video/mp4"><input class="hidden" id="videoInput" type="file" accept="video/mp4"></div><div class="media-preview hidden" id="mediaPreview"></div></div>
+            <div class="field full"><div class="switch-row"><label for="anonymousToggle">匿名发布</label><input id="anonymousToggle" type="checkbox"></div></div>
+          </div>
+          <div class="rule-note"><strong>理性发布提示：</strong>陈述事实与依据，尊重不同立场；问题尽量说明已经尝试过的方法；感激专区只接受积极、真实的正向内容。</div>
+          <div class="moderation" id="moderationBox" aria-live="polite"></div>
+        </div>
+        <div class="modal-foot"><div class="safety"><i data-lucide="shield-check"></i>发布前将自动进行内容规范检查</div><div><button class="btn" type="button" id="saveDraft">保存草稿</button> <button class="btn primary" type="submit"><i data-lucide="send"></i>检查并发布</button></div></div>
+      </form>
+    </div>
+  </div>
+  <div class="modal-backdrop hidden" id="debateModal" role="dialog" aria-modal="true" aria-labelledby="debateTitle">
+    <div class="modal debate-modal"><div class="modal-head"><div><h2 id="debateTitle">理性思辨空间</h2><div class="safety">系统只梳理分歧，不判定谁对谁错</div></div><button class="icon-btn" id="closeDebate" aria-label="关闭"><i data-lucide="x"></i></button></div><div class="modal-body"><div class="debate-mode"><button class="active" data-debate-mode="rational">理性思辨模式</button><button data-debate-mode="rigorous">严谨思辨版</button></div><div class="debate-rules"><div class="debate-rule"><strong>轮流完整发言</strong><span>不打断，先复述再回应</span></div><div class="debate-rule"><strong>只讨论观点</strong><span>禁止人身评价和嘲讽</span></div><div class="debate-rule"><strong>适时结束</strong><span>单方5轮，全场最多20轮</span></div></div><div class="debate-status"><span id="debateTurn">当前：甲方第1轮</span><span id="debateCount">总轮次 0/20</span></div><div class="debate-thread" id="debateThread"></div><div class="debate-compose" id="debateCompose"><textarea id="debateInput" placeholder="先复述对方核心观点，再说明你的不同意见和依据"></textarea><div class="debate-compose-actions"><div><button class="btn" id="pauseDebate"><i data-lucide="pause"></i>暂停辩论</button> <button class="btn" id="consensusDebate"><i data-lucide="handshake"></i>已达成共识</button></div><button class="btn primary" id="sendDebate"><i data-lucide="send"></i>完整发言</button></div></div><div class="debate-summary hidden" id="debateSummary"></div></div></div>
+  </div>
+  <div class="modal-backdrop hidden" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <div class="modal auth-modal"><div class="modal-head"><h2 id="authTitle">登录说吧</h2><button class="icon-btn" id="closeAuth" aria-label="关闭"><i data-lucide="x"></i></button></div><div class="modal-body"><div class="auth-tabs"><button class="active" data-auth-tab="login">已有账号登录</button><button data-auth-tab="register">新用户注册</button></div><form id="authForm"><div class="field"><label for="phoneInput">手机号</label><input id="phoneInput" inputmode="numeric" maxlength="11" placeholder="请输入11位手机号" required></div><div class="field" style="margin-top:12px"><label for="codeInput">验证码</label><div class="code-row"><input id="codeInput" inputmode="numeric" maxlength="6" placeholder="6位验证码" required><button class="btn" type="button" id="sendCode">获取验证码</button></div></div><button class="btn primary" style="width:100%;margin-top:16px" type="submit" id="authSubmit">登录</button></form><div class="auth-divider">或使用快捷方式</div><div class="social-auth"><button class="btn" id="wechatAuth"><i data-lucide="message-circle"></i>微信注册/登录</button><button class="btn" id="qqAuth"><i data-lucide="circle-user-round"></i>QQ注册/登录</button></div><div class="rule-note">注册即表示同意社区规范。手机号仅用于账号验证，原型不会上传真实号码。</div></div></div>
+  </div>
+  <div class="modal-backdrop hidden" id="publicProfileModal" role="dialog" aria-modal="true" aria-labelledby="publicProfileTitle"><div class="modal auth-modal"><div class="modal-head"><h2 id="publicProfileTitle">用户主页</h2><button class="icon-btn" id="closePublicProfile" aria-label="关闭"><i data-lucide="x"></i></button></div><div id="publicProfileContent"></div></div></div>
+  <div class="toast hidden" id="toast" aria-live="polite"></div>
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script>
+    const categories = {
+      '运动': {
+        '运动类型': ['跑步','游泳','骑行','篮球','足球','羽毛球'],
+        '训练方式': ['力量训练','耐力训练','柔韧训练','体能计划'],
+        '健康支持': ['运动康复','损伤预防','体态改善','运动营养']
+      },
+      '饮食': {
+        '营养知识': ['营养搭配','热量管理','特殊人群营养','运动饮食'],
+        '厨房实践': ['家常烹饪','烘焙','食材处理','厨房效率'],
+        '饮食安全': ['食品安全','食材保存','外卖选择','饮食习惯']
+      },
+      '学习': {
+        '学习方法': ['记忆方法','时间管理','阅读方法','知识整理'],
+        '课程学习': ['大学课程','语言学习','实验实践','论文阅读'],
+        '考试升学': ['期末考试','考研','留学准备','资格考试']
+      },
+      '心理': {
+        '自我调节': ['情绪管理','压力应对','睡眠改善','自我成长'],
+        '关系沟通': ['人际关系','亲密关系','家庭沟通','边界建立'],
+        '心理知识': ['心理科普','常见误区','求助指南','校园适应']
+      },
+      '人文': {
+        '思想文化': ['哲学','历史','文学','艺术鉴赏'],
+        '社会观察': ['公共议题','城市生活','教育观察','文化现象'],
+        '阅读讨论': ['经典导读','书籍讨论','写作表达','史料辨析']
+      },
+      '技术': {
+        '软件技术': ['编程开发','前端开发','后端开发','软件测试'],
+        '新兴技术': ['人工智能','数据分析','网络安全','云计算'],
+        '工程实践': ['硬件电子','数码工具','开源项目','工程管理']
+      },
+      '职场': {
+        '职业发展': ['职业规划','行业选择','能力成长','职场转型'],
+        '求职准备': ['简历作品集','求职面试','实习选择','校招经验'],
+        '工作协作': ['沟通协作','项目管理','行业经验','权益保护']
+      },
+      '生活实践': {
+        '居家生活': ['居家技能','清洁收纳','租房装修','设备维护'],
+        '公共常识': ['法律常识','公共服务','应急处理','办事指南'],
+        '个人管理': ['财务基础','消费决策','出行规划','数字生活']
+      }
+    };
+    const icons = ['dumbbell','utensils','graduation-cap','brain','landmark','cpu','briefcase-business','wrench'];
+    const posts = [
+      {id:1,type:'share',category:'学习',sub:'学习方法',author:'林溪',role:'认知科学硕士 · 学习方法',avatar:'林',color:'#176b4d',time:'2小时前',title:'为什么“重复阅读”让人感觉学会了，却很难真正记住？',body:'重复阅读产生的是熟悉感，而不是提取能力。真正影响长期记忆的，是间隔练习、主动回忆和及时反馈。本文结合一周实验，给出一套普通大学生可以执行的复习流程。',image:'https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?auto=format&fit=crop&w=1200&q=80',note:'核心方法：合上书写出要点，比继续看一遍更有效。',likes:128,comments:32,followed:false},
+      {id:2,type:'question',category:'技术',sub:'编程开发',author:'周知行',role:'计算机科学 · 大一',avatar:'周',color:'#c7533f',time:'4小时前',title:'刚开始学 C 语言，应该先练算法，还是先把指针彻底弄懂？',body:'目前学到循环和数组，能写简单题，但一看到指针就很慌。我的目标是打好基础，同时准备以后学习数据结构。每天大约能投入一小时，应该怎样安排顺序？',likes:46,comments:18,answers:12,answer:'先把数组、函数参数和内存地址的关系建立起来，再进入指针。算法练习不用停，但题目应限制在已经学过的语法范围内。'},
+      {id:3,type:'share',category:'运动',sub:'运动康复',author:'陈屿',role:'运动康复师 · 8年经验',avatar:'陈',color:'#326b83',time:'昨天',title:'久坐后腰痛，不一定是“腰太弱”：先判断这三个动作模式',body:'腰痛的原因非常复杂，不能只靠“练核心”解决。本文给出三个低风险的自测方向，帮助久坐人群区分髋关节活动受限、躯干耐力不足和日常负荷过高。',image:'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=1200&q=80',note:'出现持续疼痛、下肢麻木或夜间痛，请及时就医，不要依赖网络自测。',likes:302,comments:57,followed:true},
+      {id:4,type:'gratitude',category:'成长收获',sub:'老师帮助',author:'许言',role:'英语专业 · 大二',avatar:'许',color:'#a66b09',time:'昨天',title:'感谢那位没有直接给答案，而是陪我把问题拆开的老师',body:'我以前害怕提问，总觉得不会就是能力不够。老师用几个很具体的问题，陪我把一篇读不懂的论文拆成背景、方法和结论。我第一次意识到，提问不是暴露无知，而是在认真学习。',likes:211,comments:26,tags:['老师帮助','学习成长']},
+      {id:5,type:'question',category:'职场',sub:'职业规划',author:'顾北',role:'机械工程 · 应届生',avatar:'顾',color:'#674f86',time:'2天前',title:'传统工科应届生选择技术岗时，怎样判断“成长空间”不是一句空话？',body:'拿到两份工作机会，一份平台较大但工作内容固定，另一份团队小、承诺接触完整项目。除了薪资和公司规模，还能通过哪些具体问题判断岗位的学习空间？',likes:89,comments:41,answers:23,answer:'可以要求对方描述新人前三个月、半年和一年实际交付过什么；再追问代码或方案由谁评审、失败项目如何复盘、团队最近一次技术改进是什么。'}
+    ];
+    const creators = [
+      {name:'林溪',field:'学习方法 · 4.8万关注',avatar:'林',color:'#176b4d'},
+      {name:'陈屿',field:'运动康复 · 3.2万关注',avatar:'陈',color:'#326b83'},
+      {name:'唐其',field:'社会观察 · 2.7万关注',avatar:'唐',color:'#8b5c34'}
+    ];
+    const debates = [
+      {title:'大学课堂是否应该全面禁止使用手机？',people:128,status:'观点整理中'},
+      {title:'入门编程应优先理解原理还是完成项目？',people:86,status:'理性讨论中'}
+    ];
+    let currentSection = 'all';
+    let currentSort = 'recommend';
+    let currentCategory = '';
+    let publishType = 'share';
+    let mediaData = null;
+    let notes = JSON.parse(localStorage.getItem('shuoba-private-notes') || '[]');
+    let activeNoteId = null;
+    let discussionState = JSON.parse(localStorage.getItem('shuoba-discussion-state') || '{}');
+    let debateSession = null;
+    let isAuthenticated = Boolean(localStorage.getItem('shuoba-session')) || localStorage.getItem('shuoba-authenticated') === 'true';
+    let profilePrivate = localStorage.getItem('shuoba-private-profile') === 'true';
+    let pendingAuthAction = null;
+    let authMode = 'login';
+    let analyticsTimer = null;
+    let preferredCategories = JSON.parse(localStorage.getItem('shuoba-preferred-categories') || '{}');
+    const analyticsData={online:1286,dau:18642,register:736,publish:2418,interact:36905,debate:84,blocked:316,trend:[420,380,310,280,360,520,760,980,1160,1240,1320,1450]};
+    const $ = id => document.getElementById(id);
+    const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    function setAuthUI(){ $('authEntry').classList.toggle('hidden',isAuthenticated);$('profileAvatar').classList.toggle('hidden',!isAuthenticated); }
+    function openAuth(action=null){pendingAuthAction=action;$('authModal').classList.remove('hidden');document.body.style.overflow='hidden';setTimeout(()=>$('phoneInput').focus(),0);}
+    function closeAuth(){$('authModal').classList.add('hidden');document.body.style.overflow='';}
+    function requireAuth(action){if(isAuthenticated){action();return true;}openAuth(action);return false;}
+    function completeAuth(method,session=''){isAuthenticated=true;if(session)localStorage.setItem('shuoba-session',session);localStorage.setItem('shuoba-authenticated','true');setAuthUI();closeAuth();showToast(`${method}成功，欢迎来到说吧`);const action=pendingAuthAction;pendingAuthAction=null;if(action)setTimeout(action,0);}
+
+    function initCategories() {
+      $('categoryList').innerHTML = Object.entries(categories).map(([name, groups], i) => `<div class="category"><button data-category="${name}"><span><i data-lucide="${icons[i]}"></i>${name}</span><i data-lucide="chevron-down"></i></button><div class="subcats">${Object.entries(groups).map(([group, leaves]) => `<div class="subcat-group"><button class="subcat-toggle" data-group-toggle><span>${group}</span><i data-lucide="chevron-right"></i></button><div class="leafcats">${leaves.map(leaf => `<button data-sub="${leaf}" data-major="${name}" data-group="${group}">${leaf}</button>`).join('')}</div></div>`).join('')}</div></div>`).join('');
+      $('majorCategory').innerHTML += Object.keys(categories).map(name => `<option value="${name}">${name}</option>`).join('');
+      document.querySelectorAll('[data-category]').forEach(btn => btn.addEventListener('click', () => btn.parentElement.classList.toggle('open')));
+      document.querySelectorAll('[data-group-toggle]').forEach(btn => btn.addEventListener('click', () => btn.parentElement.classList.toggle('open')));
+      document.querySelectorAll('[data-sub]').forEach(btn => btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-sub]').forEach(x => x.classList.remove('active'));
+        btn.classList.add('active'); currentCategory = btn.dataset.sub; currentSection = 'all'; renderFeed();
+      }));
+    }
+    function renderCreators() {
+      $('creatorList').innerHTML = creators.map(c => `<div class="creator"><div class="avatar" style="background:${c.color}">${c.avatar}</div><div class="creator-copy"><strong>${c.name}</strong><span>${c.field}</span></div><button class="btn small follow-btn">关注</button></div>`).join('');
+      document.querySelectorAll('.follow-btn').forEach(btn => btn.addEventListener('click', () => requireAuth(()=>{ const active=btn.textContent==='已关注'; btn.textContent=active?'关注':'已关注'; btn.classList.toggle('primary',!active); })));
+      $('debateList').innerHTML = debates.map(d => `<div class="debate"><div class="debate-label"><i data-lucide="messages-square"></i>${d.status}</div><strong>${d.title}</strong><span>${d.people} 人参与 · 系统已整理主要观点</span></div>`).join('');
+      renderRanking('day');
+    }
+    function renderRanking(range) {
+      const ranked = [...posts].filter(p=>p.type==='share').sort((a,b)=>b.likes-a.likes).slice(0,3);
+      const period=range==='day'?'2026年7月25日':range==='month'?'2026年7月':'2026年度';
+      $('rankingList').innerHTML = ranked.map((p,i)=>`<div class="rank-item"><div class="rank-no">${i+1}</div><div><strong>${p.title}</strong><span>${period} · ${p.likes} 人认可</span></div></div>`).join('');
+    }
+    function postHtml(p) {
+      const tagClass = p.type==='question'?'question':p.type==='gratitude'?'gratitude':'';
+      const tagText = p.type==='question'?'公开提问':p.type==='gratitude'?'感激记录':'知识分享';
+      const supportLabel=p.type==='gratitude'?'鼓励':'点赞';
+      const hiddenIdentity=p.author==='周知行'&&profilePrivate;const displayAuthor=hiddenIdentity?'匿名用户':p.author,displayRole=hiddenIdentity?'主页内容已隐藏':p.role,displayAvatar=hiddenIdentity?'匿':p.avatar,displayColor=hiddenIdentity?'#68736e':p.color;
+      return `<article class="post" data-post="${p.id}"><div class="post-meta"><div class="author author-link" data-profile-author="${escapeHtml(displayAuthor)}"><div class="avatar" style="background:${displayColor}">${displayAvatar}</div><div class="author-info"><strong>${displayAuthor}</strong><span>${displayRole} · ${p.time}</span></div></div><span class="field-tag ${tagClass}">${tagText} · ${p.leaf||p.sub||p.category}</span></div><h2>${p.title}</h2><p class="post-body">${p.body}</p>${p.image?`<img class="post-image" src="${p.image}" alt="${p.title}" loading="lazy">`:''}${p.note?`<div class="post-note">${p.note}</div>`:''}${p.answer?`<div class="answer-preview"><strong>高赞回答 · ${p.answers} 个回答</strong><p>${p.answer}</p></div>`:''}${p.tags?`<div class="tags">${p.tags.map(t=>`<span class="field-tag gratitude">${t}</span>`).join(' ')}</div>`:''}<div class="post-actions"><button class="action like-btn"><i data-lucide="${p.type==='gratitude'?'heart':'thumbs-up'}"></i><span>${supportLabel} ${p.likes}</span></button><button class="action comment-toggle"><i data-lucide="message-circle"></i><span>${p.comments}</span></button>${p.type==='share'?'<button class="action supplement-toggle"><i data-lucide="list-plus"></i>补充专区</button>':''}<button class="action"><i data-lucide="bookmark"></i>收藏</button><div class="share-wrap"><button class="action share-toggle" aria-label="打开分享方式"><i data-lucide="share-2"></i>分享</button><div class="share-menu hidden"><button data-share-platform="wechat"><i data-lucide="messages-square"></i>微信朋友圈</button><button data-share-platform="qq"><i data-lucide="message-circle"></i>QQ</button><button data-share-platform="copy"><i data-lucide="link"></i>复制分享内容</button></div></div></div>${p.type==='share'?`<div class="supplement-box hidden"><strong>补充这篇知识分享</strong><textarea placeholder="补充资料、不同条件下的经验或有依据的修正意见"></textarea><button class="btn small primary submit-supplement">提交补充</button><div class="supplement-list"></div></div>`:''}<div class="comment-box hidden"><strong>参与理性讨论</strong><textarea class="comment-input" rows="2" placeholder="在这里写下观点，Enter发送，Shift+Enter换行"></textarea><div class="comment-submit-row"><button class="btn small ghost submit-comment">发表评论</button></div><div class="mediation hidden"></div><div class="discussion-log"></div></div></article>`;
+    }
+    function openPublicProfile(author){
+      $('publicProfileTitle').textContent=author==='匿名用户'?'匿名用户主页':`${author}的主页`;
+      if(author==='匿名用户'||author==='周知行'&&profilePrivate){$('publicProfileContent').innerHTML='<div class="private-profile-view"><i data-lucide="shield-check"></i><h3>该用户已开启匿名主页</h3><p>个人资料、公开发布、关注、粉丝和生活记录均不可见。</p></div>';}
+      else {const personPosts=posts.filter(p=>p.author===author);$('publicProfileContent').innerHTML=`<div class="private-profile-view"><div class="avatar" style="margin:auto">${escapeHtml(author.slice(0,1))}</div><h3>${escapeHtml(author)}</h3><p>${personPosts.length} 条公开内容 · 仅展示用户主动公开的信息</p></div>`;}
+      $('publicProfileModal').classList.remove('hidden');document.body.style.overflow='hidden';if(window.lucide)lucide.createIcons();
+    }
+    function classifyDiscussion(text){
+      const value=text.trim();
+      if(value.length<=12&&/(烦死|气死|哼|不开心|讨厌啦|别理我|无语|生气)/.test(value))return 'emotion';
+      if(/(傻|蠢|垃圾|闭嘴|你懂什么|没脑子|可笑的人)/.test(value))return 'attack';
+      if(/(不对|不是这样|你搞错了|并非如此|我不同意|怎么可能|凭什么|难道不是|这个结论有问题|不能这么说|恰恰相反)/.test(value))return 'opposition';
+      return 'neutral';
+    }
+    function saveDiscussion(){localStorage.setItem('shuoba-discussion-state',JSON.stringify(discussionState));}
+    function handleDiscussion(postId,text,box){
+      const kind=classifyDiscussion(text);const state=discussionState[postId]||{streak:0,lastDebateEnd:0};const log=box.querySelector('.discussion-log');
+      log.insertAdjacentHTML('beforeend',`<div class="discussion-entry">${escapeHtml(text)}</div>`);
+      if(kind==='attack'){state.streak=0;box.querySelector('.mediation').innerHTML='<strong>表达提醒：</strong>这句话可能涉及人身评价。请删除对人的判断，只说明你不同意哪一个观点以及理由。';box.querySelector('.mediation').classList.remove('hidden');discussionState[postId]=state;saveDiscussion();return;}
+      if(kind==='emotion'){box.querySelector('.mediation').innerHTML='<strong>情绪已收到：</strong>这是一句短暂情绪表达，不会触发辩论空间。可以先休息一下，再决定是否继续讨论。';box.querySelector('.mediation').classList.remove('hidden');state.streak=0;}
+      else if(kind==='opposition'){state.streak++;box.querySelector('.mediation').innerHTML=`<strong>分歧观察：</strong>已连续检测到 ${state.streak}/3 轮对立表达。系统暂不介入，达到3轮后才会邀请双方进入理性思辨空间。`;box.querySelector('.mediation').classList.remove('hidden');}
+      else {state.streak=0;box.querySelector('.mediation').innerHTML='<strong>讨论助手：</strong>已记录这条观点。当前表达聚焦于内容，不需要进入辩论空间。';box.querySelector('.mediation').classList.remove('hidden');}
+      discussionState[postId]=state;saveDiscussion();const input=box.querySelector('.comment-input');input.value='';input.style.height='auto';
+      const cooldown=20*60*1000;
+      if(state.streak>=3){if(Date.now()-state.lastDebateEnd<cooldown){const left=Math.ceil((cooldown-(Date.now()-state.lastDebateEnd))/60000);box.querySelector('.mediation').innerHTML=`<strong>冷却中：</strong>本讨论刚结束过辩论，${left}分钟后才可再次触发。普通讨论可以继续。`;state.streak=0;saveDiscussion();}else{state.streak=0;saveDiscussion();openDebate(postId);}}
+    }
+    function addDebateMessage(role,text,kind='side-a'){$('debateThread').insertAdjacentHTML('beforeend',`<div class="debate-message ${kind}"><strong>${role}</strong><p>${escapeHtml(text)}</p></div>`);$('debateThread').scrollTop=$('debateThread').scrollHeight;}
+    function openDebate(postId){
+      const post=posts.find(p=>String(p.id)===String(postId));debateSession={postId:String(postId),title:post?.title||'当前讨论',mode:'rational',side:'A',counts:{A:0,B:0},total:0,messages:[]};$('debateTitle').textContent=`讨论：${debateSession.title}`;$('debateThread').innerHTML='';$('debateSummary').classList.add('hidden');$('debateCompose').classList.remove('hidden');$('debateModal').classList.remove('hidden');document.body.style.overflow='hidden';addDebateMessage('思辨助手','连续3轮检测到明确分歧。请甲方先完整陈述，并在回应前复述对方核心观点。','ai');updateDebateStatus();if(window.lucide)lucide.createIcons();
+    }
+    function updateDebateStatus(){if(!debateSession)return;const side=debateSession.side;$('debateTurn').textContent=`当前：${side==='A'?'甲方':'乙方'}第${debateSession.counts[side]+1}轮`;$('debateCount').textContent=`总轮次 ${debateSession.total}/20 · 甲${debateSession.counts.A}/5 · 乙${debateSession.counts.B}/5`;}
+    function finishDebate(reason){
+      if(!debateSession)return;const a=debateSession.messages.filter(m=>m.side==='A'),b=debateSession.messages.filter(m=>m.side==='B');const summary=`<strong>${reason}</strong><p>甲方主要关注：${escapeHtml(a[0]?.text||'尚未完整陈述')}。</p><p>乙方主要关注：${escapeHtml(b[0]?.text||'尚未完整陈述')}。</p><p>当前分歧集中在判断依据和适用条件。系统不判定胜负，建议回到普通讨论后继续核对事实。</p>`;$('debateSummary').innerHTML=summary;$('debateSummary').classList.remove('hidden');$('debateCompose').classList.add('hidden');const state=discussionState[debateSession.postId]||{};state.lastDebateEnd=Date.now();state.streak=0;discussionState[debateSession.postId]=state;saveDiscussion();
+    }
+    async function sharePost(post,platform){
+      const pageUrl=location.protocol==='file:'?'':location.href.split('#')[0];
+      const text=`${post.title}\n\n${post.body}${pageUrl?`\n\n${pageUrl}`:''}`;
+      if(platform==='wechat'&&navigator.share){try{await navigator.share({title:post.title,text:post.body,url:pageUrl||undefined});return;}catch(error){if(error.name==='AbortError')return;}}
+      if(platform==='qq'&&pageUrl){const url=`https://connect.qq.com/widget/shareqq/index.html?url=${encodeURIComponent(pageUrl)}&title=${encodeURIComponent(post.title)}&summary=${encodeURIComponent(post.body)}`;window.open(url,'_blank','noopener,noreferrer');return;}
+      try{await navigator.clipboard.writeText(text);showToast(platform==='wechat'?'分享内容已复制，请打开微信并粘贴到朋友圈':'分享内容已复制，可以粘贴到QQ或其他应用');}
+      catch(error){showToast('当前浏览器无法直接分享，请通过正式网址打开后重试');}
+    }
+    function renderFeed() {
+      let items = posts.filter(p => currentSection==='all'||p.type===currentSection);
+      if(currentCategory) items=items.filter(p=>p.sub===currentCategory);
+      const query=$('searchInput').value.trim().toLowerCase();
+      if(query) items=items.filter(p=>(p.title+p.body+p.author+p.category+p.sub+(p.leaf||'')).toLowerCase().includes(query));
+      if(currentSort==='latest') items=[...items].reverse();
+      if(currentSort==='following') items=items.filter(p=>p.followed);
+      $('feed').innerHTML=items.length?items.map(postHtml).join(''):`<div class="empty"><i data-lucide="search-x"></i><strong>没有找到匹配内容</strong><div>换一个关键词或分类试试</div></div>`;
+      if(!$('searchPage').classList.contains('hidden'))$('searchResultLabel').textContent=query?`找到 ${items.length} 条相关内容`:'输入问题或关键词';
+      document.querySelectorAll('.like-btn').forEach(btn=>btn.addEventListener('click',()=>requireAuth(()=>{const liked=btn.classList.toggle('liked');const span=btn.querySelector('span');const number=Number((span.textContent.match(/\d+/)||['0'])[0])+(liked?1:-1);span.textContent=(span.textContent.startsWith('鼓励')?'鼓励 ':'点赞 ')+number;const post=posts.find(item=>String(item.id)===btn.closest('.post').dataset.post);if(post){preferredCategories[post.category]=Math.max(0,(preferredCategories[post.category]||0)+(liked?1:-1));localStorage.setItem('shuoba-preferred-categories',JSON.stringify(preferredCategories));if(!$('searchPage').classList.contains('hidden'))renderSearchRecommendations();}})));
+      document.querySelectorAll('.supplement-toggle').forEach(btn=>btn.addEventListener('click',()=>btn.closest('.post').querySelector('.supplement-box').classList.toggle('hidden')));
+      document.querySelectorAll('.comment-toggle').forEach(btn=>btn.addEventListener('click',()=>btn.closest('.post').querySelector('.comment-box').classList.toggle('hidden')));
+      document.querySelectorAll('.share-toggle').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();const menu=btn.nextElementSibling;document.querySelectorAll('.share-menu').forEach(x=>{if(x!==menu)x.classList.add('hidden');});menu.classList.toggle('hidden');}));
+      document.querySelectorAll('[data-share-platform]').forEach(btn=>btn.addEventListener('click',()=>{const post=posts.find(p=>String(p.id)===btn.closest('.post').dataset.post);btn.closest('.share-menu').classList.add('hidden');if(post)sharePost(post,btn.dataset.sharePlatform);}));
+      document.querySelectorAll('.submit-supplement').forEach(btn=>btn.addEventListener('click',()=>requireAuth(()=>{
+        const box=btn.closest('.supplement-box'),text=box.querySelector('textarea').value.trim(); if(text.length<12){showToast('补充内容至少需要12个字');return;}
+        box.querySelector('.supplement-list').insertAdjacentHTML('beforeend',`<div class="supplement-item"><strong>社区补充</strong><div>${escapeHtml(text)}</div></div>`); box.querySelector('textarea').value=''; showToast('补充已提交，将与原文共同沉淀');
+      })));
+      document.querySelectorAll('.submit-comment').forEach(btn=>btn.addEventListener('click',()=>requireAuth(()=>{
+        const box=btn.closest('.comment-box'),text=box.querySelector('.comment-input').value.trim(); if(text.length<4){showToast('请把观点说明得更具体一些');return;}const postId=btn.closest('.post').dataset.post;handleDiscussion(postId,text,box);
+      })));
+      document.querySelectorAll('.comment-input').forEach(input=>{input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,180)+'px';});input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();input.closest('.comment-box').querySelector('.submit-comment').click();}});});
+      document.querySelectorAll('[data-profile-author]').forEach(author=>author.addEventListener('click',()=>openPublicProfile(author.dataset.profileAuthor)));
+      if(window.lucide) lucide.createIcons();
+    }
+    function switchSection(section) {
+      currentSection=section; currentCategory='';
+      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.section===section));
+      const copy={all:['今天想了解什么？','从真实经验和专业见解中获得答案，也把你的知识留给后来的人。'],share:['值得沉淀的知识分享','阅读有依据、有过程、有结论的经验与专业解读。'],question:['提出一个具体问题','公开说明背景和已尝试的方法，让真正懂的人更容易帮助你。'],gratitude:['看见生活中的善意','记录真实、积极的感谢，让有价值的帮助被更多人看见。'],self:['说给自己','这里完全私密，可以写下暂时不想公开的文字，也可以随手画。'],profile:['我的主页','查看公开表达和关系，也留意自己今天的身心状态。'],analytics:['运营数据','观察用户增长、内容生产、互动质量和社区安全状态。']}[section];
+      $('sectionTitle').textContent=copy[0]; $('sectionDesc').textContent=copy[1];
+      $('searchPage').classList.add('hidden');
+      const self=section==='self',profile=section==='profile',analytics=section==='analytics'; $('selfSpace').classList.toggle('hidden',!self);$('profilePage').classList.toggle('hidden',!profile);$('analyticsPage').classList.toggle('hidden',!analytics); $('feed').classList.toggle('hidden',self||profile||analytics); document.querySelector('.feed-tabs').classList.toggle('hidden',self||profile||analytics); document.querySelector('.composer-row').classList.toggle('hidden',self||profile||analytics); $('mainPublish').classList.toggle('hidden',self||profile||analytics);
+      if(self){renderNotes();prepareCanvas();}else if(profile){renderProfile('posts');prepareMoodCanvas();}else if(analytics){startAnalytics();}else renderFeed();
+    }
+    function renderAnalytics(){
+      const format=n=>n.toLocaleString('zh-CN');$('metricOnline').textContent=format(analyticsData.online);$('metricDau').textContent=format(analyticsData.dau);$('metricRegister').textContent=format(analyticsData.register);$('metricPublish').textContent=format(analyticsData.publish);$('metricInteract').textContent=format(analyticsData.interact);$('metricDebate').textContent=format(analyticsData.debate);$('metricBlocked').textContent=format(analyticsData.blocked);
+      const max=Math.max(...analyticsData.trend);$('onlineTrend').innerHTML=analyticsData.trend.map((v,i)=>`<div class="trend-column"><div class="trend-bar" style="height:${Math.max(8,v/max*150)}px"></div><span>${String(i*2).padStart(2,'0')}时</span></div>`).join('');
+      const shares=[['学习',28],['技术',23],['生活实践',15],['运动',13],['职场',11],['其他',10]];$('categoryBars').innerHTML=shares.map(([name,value])=>`<div class="bar-row"><span>${name}</span><div class="bar-track"><div class="bar-value" style="width:${value*3}%"></div></div><strong>${value}%</strong></div>`).join('');
+    }
+    function pushAnalyticsEvent(){const events=['新用户完成手机号注册','知识分享通过内容审核','用户关注了领域创作者','感激内容获得一次鼓励','一条攻击性评论被发布前拦截','公开问题获得新回答','辩论空间正常生成分歧小结'];const now=new Date().toLocaleTimeString('zh-CN',{hour12:false});$('eventStream').insertAdjacentHTML('afterbegin',`<div class="event-item"><time>${now}</time><span>${events[Math.floor(Math.random()*events.length)]}</span></div>`);while($('eventStream').children.length>10)$('eventStream').lastElementChild.remove();}
+    function startAnalytics(){renderAnalytics();if(!$('eventStream').children.length)for(let i=0;i<5;i++)pushAnalyticsEvent();if(analyticsTimer)return;analyticsTimer=setInterval(()=>{analyticsData.online=Math.max(900,analyticsData.online+Math.floor(Math.random()*21)-8);analyticsData.dau+=Math.floor(Math.random()*4);analyticsData.register+=Math.random()<.55?1:0;analyticsData.publish+=Math.random()<.7?1:0;analyticsData.interact+=Math.floor(Math.random()*7);if(Math.random()<.08)analyticsData.debate++;if(Math.random()<.16)analyticsData.blocked++;analyticsData.trend[analyticsData.trend.length-1]=analyticsData.online;renderAnalytics();pushAnalyticsEvent();},3000);}
+    function renderSearchRecommendations(){
+      const ranked=[...posts].sort((a,b)=>((preferredCategories[b.category]||0)*1000+(b.followed?300:0)+b.likes)-((preferredCategories[a.category]||0)*1000+(a.followed?300:0)+a.likes)).slice(0,4);
+      $('searchRecommendList').innerHTML=ranked.map(post=>`<button class="recommend-item" data-recommend-post="${post.id}"><strong>${post.title}</strong><span>${post.category} · ${post.author} · ${post.likes} 人认可</span></button>`).join('');
+      document.querySelectorAll('[data-recommend-post]').forEach(btn=>btn.addEventListener('click',()=>{const post=posts.find(item=>String(item.id)===btn.dataset.recommendPost);if(!post)return;$('searchInput').value=post.title;$('searchChatInput').value=post.title;renderFeed();$('feed').scrollIntoView({behavior:'smooth',block:'start'});}));
+    }
+    function openSearchPage(query){
+      switchSection('all');currentCategory='';$('searchInput').value=query;$('searchChatInput').value=query;$('searchPage').classList.remove('hidden');document.querySelector('.composer-row').classList.add('hidden');$('sectionTitle').textContent='搜索结果';$('sectionDesc').textContent='继续用完整问题搜索，也可以向下浏览根据兴趣整理的推荐内容。';renderSearchRecommendations();renderFeed();$('searchPage').scrollIntoView({behavior:'smooth',block:'start'});
+    }
+    const followingPeople=[{name:'林溪',detail:'学习方法 · 已关注',avatar:'林',color:'#176b4d'},{name:'陈屿',detail:'运动康复 · 已关注',avatar:'陈',color:'#326b83'},{name:'唐其',detail:'社会观察 · 已关注',avatar:'唐',color:'#8b5c34'}];
+    const fanPeople=[{name:'夏禾',detail:'关注了你 · 3天前',avatar:'夏',color:'#a66b09'},{name:'江澄',detail:'关注了你 · 1周前',avatar:'江',color:'#674f86'},{name:'沈言',detail:'经常阅读你的回答',avatar:'沈',color:'#c7533f'}];
+    function personRows(items){return items.map(p=>`<div class="person-row"><div class="avatar" style="background:${p.color}">${p.avatar}</div><div><strong>${p.name}</strong><span>${p.detail}</span></div><button class="btn small">查看主页</button></div>`).join('');}
+    function renderProfile(tab='posts'){
+      document.querySelectorAll('[data-profile-tab]').forEach(btn=>btn.classList.toggle('active',btn.dataset.profileTab===tab));
+      const mine=posts.filter(p=>p.owner||p.author==='周知行');$('myPostCount').textContent=mine.length;
+      if(tab==='posts'){$('profileListTitle').textContent='我的公开发布';$('profileListContent').innerHTML=mine.length?mine.map(p=>`<div class="person-row"><div class="avatar" style="background:${p.color}">${p.avatar}</div><div><strong>${p.title}</strong><span>${p.type==='share'?'知识分享':p.type==='question'?'公开提问':'感激记录'} · ${p.time} · ${p.likes} 人认可</span></div><button class="btn small">查看</button></div>`).join(''):'<div class="empty">还没有公开发布</div>';}
+      if(tab==='following'){$('profileListTitle').textContent='我关注的人';$('profileListContent').innerHTML=personRows(followingPeople);}
+      if(tab==='fans'){$('profileListTitle').textContent='关注我的人';$('profileListContent').innerHTML=personRows(fanPeople);}
+    }
+    let canvasReady=false, drawing=false, erasing=false;
+    function prepareCanvas(){
+      const canvas=$('drawCanvas'); if(!canvasReady){
+        const width=Math.max(320,Math.floor(canvas.getBoundingClientRect().width)); canvas.width=width*2; canvas.height=480; const ctx=canvas.getContext('2d');ctx.scale(2,2);ctx.lineCap='round';ctx.lineJoin='round';
+        const point=e=>{const r=canvas.getBoundingClientRect();return {x:(e.clientX-r.left)*(canvas.width/2/r.width),y:(e.clientY-r.top)*(canvas.height/2/r.height)}};
+        canvas.addEventListener('pointerdown',e=>{drawing=true;canvas.setPointerCapture(e.pointerId);const p=point(e);ctx.beginPath();ctx.moveTo(p.x,p.y);});
+        canvas.addEventListener('pointermove',e=>{if(!drawing)return;const p=point(e);ctx.strokeStyle=erasing?'#ffffff':$('penColor').value;ctx.lineWidth=Number($('penSize').value);ctx.lineTo(p.x,p.y);ctx.stroke();});
+        canvas.addEventListener('pointerup',()=>drawing=false);canvas.addEventListener('pointercancel',()=>drawing=false);canvasReady=true;
+      }
+      loadActiveNote();
+    }
+    function renderNotes(){
+      $('noteItems').innerHTML=notes.length?notes.map(n=>`<button class="note-item ${n.id===activeNoteId?'active':''}" data-note-id="${n.id}"><strong>${escapeHtml(n.title||'无题笔记')}</strong><span>${new Date(n.updated).toLocaleString('zh-CN')}</span></button>`).join(''):'<div class="empty">还没有私人笔记</div>';
+      document.querySelectorAll('[data-note-id]').forEach(btn=>btn.addEventListener('click',()=>{activeNoteId=Number(btn.dataset.noteId);renderNotes();loadActiveNote();}));
+      if(!activeNoteId&&notes.length){activeNoteId=notes[0].id;renderNotes();loadActiveNote();}
+    }
+    function loadActiveNote(){
+      if(!canvasReady)return;const note=notes.find(n=>n.id===activeNoteId);$('noteTitle').value=note?.title||'';$('noteContent').value=note?.content||'';const ctx=$('drawCanvas').getContext('2d');ctx.clearRect(0,0,$('drawCanvas').width,$('drawCanvas').height);
+      if(note?.drawing){const img=new Image();img.onload=()=>ctx.drawImage(img,0,0,$('drawCanvas').width/2,$('drawCanvas').height/2);img.src=note.drawing;}
+    }
+    function saveNotes(){localStorage.setItem('shuoba-private-notes',JSON.stringify(notes));}
+    function saveCurrentNote(){
+      const title=$('noteTitle').value.trim(),content=$('noteContent').value.trim();if(!title&&!content){showToast('先写一个题目或一些内容');return;}
+      let note=notes.find(n=>n.id===activeNoteId);if(!note){note={id:Date.now()};notes.unshift(note);activeNoteId=note.id;}
+      Object.assign(note,{title:title||'无题笔记',content,drawing:$('drawCanvas').toDataURL('image/png'),updated:Date.now()});saveNotes();renderNotes();showToast('私人笔记已保存在本机');
+    }
+    let moodCanvasReady=false,moodDrawing=false,moodDrawn=false;
+    function prepareMoodCanvas(){
+      const canvas=$('moodCanvas');if(moodCanvasReady)return;const width=Math.max(260,Math.floor(canvas.getBoundingClientRect().width));canvas.width=width*2;canvas.height=260;const ctx=canvas.getContext('2d');ctx.scale(2,2);ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=4;
+      const point=e=>{const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*(canvas.width/2/r.width),y:(e.clientY-r.top)*(canvas.height/2/r.height)}};
+      canvas.addEventListener('pointerdown',e=>{moodDrawing=true;moodDrawn=true;canvas.setPointerCapture(e.pointerId);const p=point(e);ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.fillStyle=$('moodColor').value;ctx.arc(p.x,p.y,2,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.moveTo(p.x,p.y);});
+      canvas.addEventListener('pointermove',e=>{if(!moodDrawing)return;const p=point(e);ctx.strokeStyle=$('moodColor').value;ctx.lineTo(p.x,p.y);ctx.stroke();});canvas.addEventListener('pointerup',()=>moodDrawing=false);canvas.addEventListener('pointercancel',()=>moodDrawing=false);moodCanvasReady=true;
+      const saved=JSON.parse(localStorage.getItem('shuoba-daily-state')||'{}');if(saved.moodDrawing){const img=new Image();img.onload=()=>{ctx.drawImage(img,0,0,canvas.width/2,canvas.height/2);moodDrawn=true;};img.src=saved.moodDrawing;}
+    }
+    function preparePublishCategories(){
+      const major=$('majorCategory').value||Object.keys(categories)[0];
+      $('majorCategory').value=major;
+      const groups=Object.keys(categories[major]);
+      $('subCategory').disabled=false;
+      $('subCategory').innerHTML='<option value="">请选择领域类型</option>'+groups.map(name=>`<option value="${name}">${name}</option>`).join('');
+      const group=groups.includes($('subCategory').value)?$('subCategory').value:groups[0];
+      $('subCategory').value=group;
+      $('leafCategory').disabled=false;
+      $('leafCategory').innerHTML='<option value="">请选择具体分类</option>'+categories[major][group].map(name=>`<option value="${name}">${name}</option>`).join('');
+      $('leafCategory').value=categories[major][group][0];
+    }
+    function openPublish(type='share') {
+      publishType=type; $('publishModal').classList.remove('hidden'); document.body.style.overflow='hidden'; switchPublishType(type);preparePublishCategories();setTimeout(()=>$('postTitle').focus(),0);
+    }
+    function closePublish(){ $('publishModal').classList.add('hidden'); document.body.style.overflow=''; $('moderationBox').classList.remove('show'); }
+    function switchPublishType(type) {
+      publishType=type; document.querySelectorAll('[data-type]').forEach(b=>b.classList.toggle('active',b.dataset.type===type));
+      $('modalTitle').textContent={share:'发布知识分享',question:'发起公开提问',gratitude:'记录一份感激'}[type];
+      $('postTitle').placeholder={share:'用一句话准确概括你的核心观点',question:'把问题写具体，让别人一眼看懂',gratitude:'你想感谢谁，或感谢什么经历？'}[type];
+      $('postContent').placeholder={share:'先说明背景，再给出依据、过程与结论。',question:'说明问题背景、目标、已经尝试的方法和具体卡点。',gratitude:'写下具体发生了什么，以及这份帮助给你带来的积极变化。'}[type];
+      $('gratitudeTagsWrap').classList.toggle('hidden',type!=='gratitude'); $('gratitudeTags').required=type==='gratitude';
+      if(profilePrivate)$('anonymousToggle').checked=true;
+    }
+    function showToast(text){const t=$('toast');t.textContent=text;t.classList.remove('hidden');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.add('hidden'),2600);}
+    function moderate(title,content,type){
+      const combined=(title+' '+content).toLowerCase(); const blocked=['傻逼','废物','去死','垃圾人','煽动','违法交易'];
+      const found=blocked.find(k=>combined.includes(k)); if(found)return `检测到不符合社区规范的表达“${found}”。请删除人身攻击、引战或违规内容后再发布。`;
+      if(/javascript\s*:|data\s*:\s*text\/html/i.test(combined))return '检测到不安全的脚本网址协议，内容已停止发布。';
+      const urls=combined.match(/(?:https?:\/\/|www\.)[^\s<>]+/g)||[];
+      if(urls.some(url=>url.startsWith('http://')||url.startsWith('www.')))return '外部网址必须使用完整的 https:// 安全链接。';
+      if(urls.some(url=>/(bit\.ly|tinyurl\.com|t\.co|\.zip\/|\.mov\/)/i.test(url)))return '检测到短链或高风险网址形式。请改用可识别来源的 HTTPS 原始链接。';
+      if(content.trim().length<35)return '正文信息不足。请补充事实背景、具体过程或判断依据，至少写满35个字。';
+      if(type==='gratitude'&&/(讨厌|愤怒|抱怨|恶心|恨)/.test(combined))return '感激专区只接受积极正向内容。当前文字包含明显负面表达，请调整后发布。';
+      if(type!=='gratitude'&&/(烦死了|气死了|纯吐槽|无语死了)/.test(combined))return '内容更接近单纯情绪宣泄。请补充具体问题、事实依据或可讨论的观点。';
+      return '';
+    }
+    document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>btn.dataset.section==='self'?requireAuth(()=>switchSection('self')):switchSection(btn.dataset.section)));
+    document.querySelectorAll('[data-compose]').forEach(btn=>btn.addEventListener('click',()=>requireAuth(()=>openPublish(btn.dataset.compose))));
+    $('topPublish').addEventListener('click',()=>requireAuth(()=>openPublish('share'))); $('mainPublish').addEventListener('click',()=>requireAuth(()=>openPublish(currentSection==='all'?'share':currentSection)));
+    $('analyticsEntry').addEventListener('click',()=>requireAuth(()=>switchSection('analytics')));
+    $('closeModal').addEventListener('click',closePublish); $('publishModal').addEventListener('click',e=>{if(e.target===$('publishModal'))closePublish();});
+    document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(!$('publishModal').classList.contains('hidden'))closePublish();else if(!$('debateModal').classList.contains('hidden'))hideDebate();else if(!$('authModal').classList.contains('hidden'))closeAuth();else if(!$('publicProfileModal').classList.contains('hidden'))closePublicProfile();});
+    document.querySelectorAll('[data-type]').forEach(btn=>btn.addEventListener('click',()=>switchPublishType(btn.dataset.type)));
+    $('majorCategory').addEventListener('change',()=>{const major=$('majorCategory').value;if(!major){$('subCategory').disabled=true;$('leafCategory').disabled=true;return;}const groups=Object.keys(categories[major]);$('subCategory').disabled=false;$('subCategory').innerHTML='<option value="">请选择领域类型</option>'+groups.map(s=>`<option value="${s}">${s}</option>`).join('');$('subCategory').value=groups[0];$('leafCategory').disabled=false;$('leafCategory').innerHTML='<option value="">请选择具体分类</option>'+categories[major][groups[0]].map(s=>`<option value="${s}">${s}</option>`).join('');$('leafCategory').value=categories[major][groups[0]][0];});
+    $('subCategory').addEventListener('change',()=>{const major=$('majorCategory').value,group=$('subCategory').value;if(!major||!group){$('leafCategory').disabled=true;$('leafCategory').innerHTML='<option value="">请先选择领域类型</option>';return;}$('leafCategory').disabled=false;$('leafCategory').innerHTML='<option value="">请选择具体分类</option>'+categories[major][group].map(s=>`<option value="${s}">${s}</option>`).join('');$('leafCategory').value=categories[major][group][0];});
+    $('postTitle').addEventListener('input',()=>{$('titleCount').textContent=$('postTitle').value.length;}); $('postContent').addEventListener('input',()=>{$('contentCount').textContent=$('postContent').value.length;});
+    $('searchBtn').addEventListener('click',()=>{$('searchPopover').classList.add('hidden');openSearchPage($('searchInput').value.trim());}); $('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter'){$('searchPopover').classList.add('hidden');openSearchPage($('searchInput').value.trim());}});$('searchInput').addEventListener('focus',()=>$('searchPopover').classList.remove('hidden'));document.querySelectorAll('[data-hot]').forEach(btn=>btn.addEventListener('click',()=>{$('searchPopover').classList.add('hidden');openSearchPage(btn.dataset.hot);}));document.addEventListener('click',e=>{if(!e.target.closest('.search'))$('searchPopover').classList.add('hidden');});
+    document.addEventListener('click',e=>{if(!e.target.closest('.share-wrap'))document.querySelectorAll('.share-menu').forEach(menu=>menu.classList.add('hidden'));});
+    function submitSearchChat(){const query=$('searchChatInput').value.trim();$('searchInput').value=query;renderFeed();}
+    $('searchChatBtn').addEventListener('click',submitSearchChat);$('searchChatInput').addEventListener('input',()=>{const input=$('searchChatInput');input.style.height='auto';input.style.height=Math.min(input.scrollHeight,180)+'px';});$('searchChatInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submitSearchChat();}});document.querySelectorAll('[data-search-suggest]').forEach(btn=>btn.addEventListener('click',()=>{$('searchChatInput').value=btn.dataset.searchSuggest;submitSearchChat();}));
+    document.querySelectorAll('.feed-tab').forEach(btn=>btn.addEventListener('click',()=>{currentSort=btn.dataset.sort;document.querySelectorAll('.feed-tab').forEach(x=>x.classList.toggle('active',x===btn));renderFeed();}));
+    $('saveDraft').addEventListener('click',()=>{localStorage.setItem('shuoba-draft',JSON.stringify({type:publishType,title:$('postTitle').value,content:$('postContent').value,major:$('majorCategory').value,sub:$('subCategory').value}));showToast('草稿已保存在本机');});
+    $('publishForm').addEventListener('submit',e=>{e.preventDefault();const title=$('postTitle').value.trim(),content=$('postContent').value.trim();const error=moderate(title,content,publishType);if(error){$('moderationBox').textContent=error;$('moderationBox').classList.add('show');return;}const major=$('majorCategory').value,sub=$('subCategory').value,leaf=$('leafCategory').value;if(!major||!sub||!leaf)return;const anonymous=$('anonymousToggle').checked||profilePrivate;posts.unshift({id:Date.now(),owner:true,type:publishType,category:major,sub,leaf,author:anonymous?'匿名用户':'周知行',role:anonymous?'身份已隐藏':'新晋分享者',avatar:anonymous?'匿':'周',color:anonymous?'#68736e':'#c7533f',time:'刚刚',title:escapeHtml(title),body:escapeHtml(content),image:mediaData?.type==='image'?mediaData.url:undefined,likes:0,comments:0,tags:publishType==='gratitude'?[escapeHtml($('gratitudeTags').value)]:undefined});$('publishForm').reset();mediaData=null;$('mediaPreview').classList.add('hidden');$('titleCount').textContent='0';$('contentCount').textContent='0';closePublish();switchSection(publishType==='share'?'share':publishType);showToast('内容已通过文字、媒体和网址安全检查并发布');});
+    $('imagePick').addEventListener('click',()=>$('mediaInput').click());$('videoPick').addEventListener('click',()=>$('videoInput').click());
+    function inspectMedia(file){
+      const allowed=['image/png','image/jpeg','image/webp','video/mp4'];if(!allowed.includes(file.type)){showToast('只允许 PNG、JPEG、WebP 图片或 MP4 视频');return;}if(file.size>20*1024*1024){showToast('媒体文件不能超过20MB');return;}if(/色情|暴力|违法|赌博|仇恨/i.test(file.name)){showToast('文件名称触发敏感内容检查，请更换合规文件');return;}
+      const url=URL.createObjectURL(file);mediaData={type:file.type.startsWith('image/')?'image':'video',url,name:file.name};$('mediaPreview').innerHTML=mediaData.type==='image'?`<img src="${url}" alt="待发布图片预览"><span>${escapeHtml(file.name)} · 已通过格式和文件名检查，发布后仍需服务端图像审核</span>`:`<i data-lucide="video"></i><span>${escapeHtml(file.name)} · 视频等待发布审核</span>`;$('mediaPreview').classList.remove('hidden');if(window.lucide)lucide.createIcons();
+    }
+    $('mediaInput').addEventListener('change',()=>{if($('mediaInput').files[0])inspectMedia($('mediaInput').files[0]);});$('videoInput').addEventListener('change',()=>{if($('videoInput').files[0])inspectMedia($('videoInput').files[0]);});
+    $('profileAvatar').addEventListener('click',()=>switchSection('profile'));$('changeAvatar').addEventListener('click',()=>$('avatarInput').click());$('avatarInput').addEventListener('change',()=>{const file=$('avatarInput').files[0];if(!file)return;if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>5*1024*1024){showToast('头像仅支持5MB以内的PNG、JPEG或WebP图片');return;}const reader=new FileReader();reader.onload=()=>{localStorage.setItem('shuoba-avatar',reader.result);[$('profileAvatar'),$('profileLargeAvatar')].forEach(el=>{el.textContent='';el.style.backgroundImage=`url(${reader.result})`;el.style.backgroundSize='cover';});showToast('头像已保存在当前设备');};reader.readAsDataURL(file);});
+    const savedAvatar=localStorage.getItem('shuoba-avatar');if(savedAvatar){[$('profileAvatar'),$('profileLargeAvatar')].forEach(el=>{el.textContent='';el.style.backgroundImage=`url(${savedAvatar})`;el.style.backgroundSize='cover';});}
+    $('privateProfileToggle').checked=profilePrivate;$('privateProfileToggle').addEventListener('change',()=>{profilePrivate=$('privateProfileToggle').checked;localStorage.setItem('shuoba-private-profile',String(profilePrivate));if(profilePrivate)$('anonymousToggle').checked=true;renderFeed();showToast(profilePrivate?'匿名主页已开启，其他人将看不到任何主页内容':'匿名主页已关闭，公开内容将恢复展示身份');});
+    $('previewPublicProfile').addEventListener('click',()=>openPublicProfile(profilePrivate?'匿名用户':'周知行'));
+    function closePublicProfile(){$('publicProfileModal').classList.add('hidden');document.body.style.overflow='';}
+    $('closePublicProfile').addEventListener('click',closePublicProfile);$('publicProfileModal').addEventListener('click',e=>{if(e.target===$('publicProfileModal'))closePublicProfile();});
+    document.querySelectorAll('[data-profile-tab]').forEach(btn=>btn.addEventListener('click',()=>renderProfile(btn.dataset.profileTab)));
+    const daily=JSON.parse(localStorage.getItem('shuoba-daily-state')||'{}');if(daily.sleep!=null)$('sleepHours').value=daily.sleep;
+    $('clearMood').addEventListener('click',()=>{prepareMoodCanvas();const canvas=$('moodCanvas');canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);moodDrawn=false;showToast('心情画布已清空，可以重新画');});
+    $('saveDaily').addEventListener('click',()=>{prepareMoodCanvas();const sleep=Number($('sleepHours').value);if(!moodDrawn){showToast('请先在画布上画出今天的心情');return;}if(!$('sleepHours').value||sleep<0||sleep>24){showToast('请输入0到24小时之间的睡眠时间');return;}const moodDrawing=$('moodCanvas').toDataURL('image/png');localStorage.setItem('shuoba-daily-state',JSON.stringify({date:new Date().toISOString().slice(0,10),moodDrawing,sleep}));showToast(`今天的心情画和${sleep}小时睡眠已保存`);});
+    document.querySelectorAll('[data-debate-mode]').forEach(btn=>btn.addEventListener('click',()=>{if(!debateSession)return;debateSession.mode=btn.dataset.debateMode;document.querySelectorAll('[data-debate-mode]').forEach(x=>x.classList.toggle('active',x===btn));$('debateInput').placeholder=debateSession.mode==='rigorous'?'复述对方观点，并给出数据、事实、例子或可验证依据':'先复述对方核心观点，再说明你的不同意见和依据';addDebateMessage('思辨助手',debateSession.mode==='rigorous'?'已切换严谨思辨版：每个论点应附带可核查依据，结尾会明确区分事实、推断与价值判断。':'已切换理性思辨模式：目标是理解分歧，不强行说服。','ai');}));
+    $('sendDebate').addEventListener('click',()=>{
+      if(!debateSession)return;const text=$('debateInput').value.trim();if(!text)return;if(text==='暂停辩论'){finishDebate('一方主动暂停，辩论已结束');return;}const kind=classifyDiscussion(text);if(kind==='attack'){addDebateMessage('思辨助手','检测到人身评价倾向。请回到具体观点，把“你怎样”改成“这个论点在哪个条件下不成立”。','ai');return;}if(debateSession.mode==='rigorous'&&(text.length<25||!/(因为|依据|数据|例子|事实|逻辑|来源|条件)/.test(text))){addDebateMessage('思辨助手','严谨思辨版要求论点带依据。请补充事实、数据、例子、来源或明确的逻辑条件后再发送。','ai');return;}
+      const side=debateSession.side;if(debateSession.counts[side]>=5){addDebateMessage('思辨助手',`${side==='A'?'甲方':'乙方'}已达到5轮上限，请让另一方完成陈述。`,'ai');debateSession.side=side==='A'?'B':'A';updateDebateStatus();return;}
+      debateSession.counts[side]++;debateSession.total++;debateSession.messages.push({side,text});addDebateMessage(side==='A'?'甲方':'乙方',text,side==='A'?'side-a':'side-b');$('debateInput').value='';
+      if(debateSession.total>=20||debateSession.counts.A>=5&&debateSession.counts.B>=5){finishDebate('已达到发言轮次上限，系统自动收尾');return;}
+      debateSession.side=side==='A'?'B':'A';addDebateMessage('思辨助手',`请${debateSession.side==='A'?'甲方':'乙方'}先用一句话复述对方刚才的核心观点，再提出不同意见。`,'ai');updateDebateStatus();
+    });
+    $('pauseDebate').addEventListener('click',()=>finishDebate('一方主动暂停，辩论已结束'));
+    $('consensusDebate').addEventListener('click',()=>finishDebate('双方确认达成共识，辩论提前结束'));
+    function hideDebate(){if(debateSession&&!$('debateCompose').classList.contains('hidden'))finishDebate('辩论被主动关闭');$('debateModal').classList.add('hidden');document.body.style.overflow='';debateSession=null;}
+    $('closeDebate').addEventListener('click',hideDebate);$('debateModal').addEventListener('click',e=>{if(e.target===$('debateModal'))hideDebate();});
+    $('authEntry').addEventListener('click',()=>openAuth());$('closeAuth').addEventListener('click',closeAuth);$('authModal').addEventListener('click',e=>{if(e.target===$('authModal'))closeAuth();});
+    document.querySelectorAll('[data-auth-tab]').forEach(btn=>btn.addEventListener('click',()=>{authMode=btn.dataset.authTab;document.querySelectorAll('[data-auth-tab]').forEach(x=>x.classList.toggle('active',x===btn));$('authTitle').textContent=authMode==='login'?'登录说吧':'注册说吧';$('authSubmit').textContent=authMode==='login'?'登录':'注册并进入';}));
+    const serverMode=location.protocol==='http:'||location.protocol==='https:';
+    async function authRequest(path,payload){const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const result=await response.json();if(!response.ok)throw new Error(result.message||'请求失败，请稍后重试');return result;}
+    let codeSeconds=0,codeTimer=null;$('sendCode').addEventListener('click',async()=>{const phone=$('phoneInput').value.trim();if(!/^1\d{10}$/.test(phone)){showToast('请输入正确的11位手机号');return;}try{let message='本地演示验证码为 123456';if(serverMode){const result=await authRequest('/api/auth/code',{phone});message=result.developmentCode?`开发验证码为 ${result.developmentCode}`:result.message;}codeSeconds=60;$('sendCode').disabled=true;$('sendCode').textContent='60秒后重发';clearInterval(codeTimer);codeTimer=setInterval(()=>{codeSeconds--;$('sendCode').textContent=codeSeconds?`${codeSeconds}秒后重发`:'获取验证码';if(!codeSeconds){clearInterval(codeTimer);$('sendCode').disabled=false;}},1000);showToast(message);}catch(error){showToast(error.message);}});
+    $('authForm').addEventListener('submit',async e=>{e.preventDefault();const phone=$('phoneInput').value.trim(),code=$('codeInput').value.trim();if(!/^1\d{10}$/.test(phone)){showToast('请输入正确的11位手机号');return;}try{if(serverMode){const result=await authRequest('/api/auth/verify',{phone,code,mode:authMode});completeAuth(authMode==='login'?'登录':'注册',result.token);}else{if(code!=='123456')throw new Error('请输入本地演示验证码 123456');completeAuth(authMode==='login'?'登录':'注册');}}catch(error){showToast(error.message);}});
+    $('wechatAuth').addEventListener('click',()=>completeAuth('微信快捷登录'));$('qqAuth').addEventListener('click',()=>completeAuth('QQ快捷登录'));
+    document.querySelectorAll('[data-rank]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-rank]').forEach(x=>x.classList.toggle('active',x===btn));renderRanking(btn.dataset.rank);}));
+    $('newNote').addEventListener('click',()=>{activeNoteId=null;$('noteTitle').value='';$('noteContent').value='';if(canvasReady)$('drawCanvas').getContext('2d').clearRect(0,0,$('drawCanvas').width,$('drawCanvas').height);showToast('已新建空白私密页');});
+    $('saveNote').addEventListener('click',saveCurrentNote);$('eraserBtn').addEventListener('click',()=>{erasing=!erasing;$('eraserBtn').classList.toggle('primary',erasing);showToast(erasing?'已切换为橡皮':'已切换为画笔');});$('clearCanvas').addEventListener('click',()=>{if(canvasReady)$('drawCanvas').getContext('2d').clearRect(0,0,$('drawCanvas').width,$('drawCanvas').height);});
+    setAuthUI();initCategories(); renderCreators(); renderFeed(); if(window.lucide) lucide.createIcons();
+  </script>
+</body>
+</html>
