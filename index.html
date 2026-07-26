@@ -122,9 +122,6 @@
     .reading-modes button { flex:1; padding:8px; border:0; border-radius:4px; color:var(--muted); background:transparent; font-weight:700; }
     .reading-modes button.active { color:var(--ink); background:var(--surface); box-shadow:0 2px 8px rgba(0,0,0,.05); }
     .quick-read { padding:16px; border-left:3px solid var(--green); background:var(--green-soft); line-height:1.9; }
-    .light-zone { display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center; margin-top:12px; padding:15px 18px; border:1px solid var(--line); border-radius:7px; background:var(--surface); }
-    .light-zone strong,.light-zone span { display:block; }
-    .light-zone span { color:var(--muted); font-size:11px; }
     .spar-options { display:flex; gap:6px; }
     .spar-options button { padding:7px 10px; border:1px solid var(--line); border-radius:999px; color:var(--muted); background:var(--surface-2); }
     .random-card { min-height:150px; padding:15px; border-radius:7px; background:var(--surface-2); }
@@ -408,7 +405,6 @@
       .feed-tab { min-height: 34px; flex: 0 0 auto; }
       .post { padding: 18px 16px; }
       .post h2 { font-size: 17px; }
-      .light-zone { grid-template-columns:1fr; padding:12px; }
       .form-grid { grid-template-columns: 1fr; }
       .recommend-list { grid-template-columns: 1fr; }
       .field.full { grid-column: auto; }
@@ -455,7 +451,6 @@
         </div>
         <div class="debate-demo"><div><strong>内测体验：多人文字辩论空间</strong><span>无需制造争吵，使用示例话题直接体验轮流发言、严格拦截与分歧总结。</span></div><button class="btn" id="demoDebate"><i data-lucide="message-square-more"></i>进入体验</button></div>
       </section>
-      <section class="light-zone"><div><strong>轻松切磋：高考结束后，应该先彻底放空还是提前看看大学课程？</strong><span>不用写论文，用自己的经历说两句就好。</span></div><div class="spar-options"><button data-spar="先放空">先放空</button><button data-spar="先了解">先了解</button><button data-spar="看状态">看状态</button></div></section>
       <div class="hot-searches" style="margin:12px 0"><button data-hot="摸鱼学点东西">#摸鱼学点东西</button><button data-hot="三角洲">#三角洲小技巧</button><button data-hot="运动">#运动不硬撑</button><button data-hot="高考">#高考后的感悟</button></div>
       <section class="search-page hidden" id="searchPage"><div class="search-page-head"><h2>搜索说吧</h2><span id="searchResultLabel">输入问题或关键词</span></div><div class="search-chat"><textarea id="searchChatInput" rows="2" placeholder="可以输入完整问题，例如：大一学生怎样建立可长期执行的学习计划？"></textarea><button id="searchChatBtn" aria-label="搜索"><i data-lucide="send"></i></button></div><div class="search-suggestions"><button data-search-suggest="如何判断一个观点是否有可靠依据">可靠依据</button><button data-search-suggest="适合大学生的跑步训练计划">跑步计划</button><button data-search-suggest="C语言指针应该怎样理解">C语言指针</button></div><div class="search-recommend"><div class="search-recommend-head"><h3>猜你喜欢</h3><span>根据你的阅读偏好与社区热度推荐</span></div><div class="recommend-list" id="searchRecommendList"></div></div></section>
       <div class="feed-tabs"><button class="feed-tab active" data-sort="recommend">为你推荐</button><button class="feed-tab" data-sort="latest">最新发布</button><button class="feed-tab" data-sort="following">我的关注</button></div>
@@ -825,7 +820,6 @@
     $('randomKnowledge').addEventListener('click',renderRandomCard);
     $('demoDebate').addEventListener('click',()=>requireAuth(openDemoDebate));
     document.querySelectorAll('[data-challenge]').forEach(btn=>btn.addEventListener('click',()=>{$('challengeResult').textContent=btn.dataset.challenge==='no'?'答对了。入门期先建立可持续的强度，比盲目追速度更稳。':'这个说法太绝对。速度、恢复和训练基础要一起看。';}));
-    document.querySelectorAll('[data-spar]').forEach(btn=>btn.addEventListener('click',()=>requireAuth(()=>{showToast(`已记录你的看法：${btn.dataset.spar}。轻松交流，不计输赢。`);}))); 
     document.querySelectorAll('[data-format]').forEach(btn=>btn.addEventListener('click',()=>{publishFormat=btn.dataset.format;document.querySelectorAll('[data-format]').forEach(x=>x.classList.toggle('active',x===btn));const content=$('postContent');content.maxLength=publishFormat==='short'?300:3000;content.placeholder=publishFormat==='short'?'用几句话分享一个有用的小发现，不必写成长文。':publishFormat==='image'?'先说清图片里的重点，再补充你的经验或依据。':'分段说明背景、过程、依据和结论，让感兴趣的人继续深挖。';content.nextElementSibling.lastChild.textContent=publishFormat==='short'?'/300':'/3000';}));
     const writingTemplates={discovery:{title:'我刚发现：',content:'我刚发现一个以前忽略的小细节：\n\n它出现在哪种情况：\n\n我实际试过以后：\n\n也想听听大家有没有不同经验。'},experience:{title:'我试了以后：',content:'我最近试了一个办法，先说结论：\n\n当时遇到的问题：\n\n我是怎么做的：\n\n哪些地方有效，哪些地方还需要调整：'},question:{title:'我卡在这里：',content:'我卡在一个具体问题上：\n\n事情的背景是：\n\n我已经试过这些方法：\n\n目前最想弄清楚的是：'},reflection:{title:'这件事让我想到：',content:'这件事让我想到一个值得慢慢聊的问题：\n\n我的真实经历是：\n\n我现在的理解是：\n\n这只是个人感受，也欢迎补充其他角度。'}};
     document.querySelectorAll('[data-template]').forEach(btn=>btn.addEventListener('click',()=>{const template=writingTemplates[btn.dataset.template];if(!template)return;if(!$('postTitle').value.trim())$('postTitle').value=template.title;if(!$('postContent').value.trim())$('postContent').value=template.content;$('titleCount').textContent=$('postTitle').value.length;$('contentCount').textContent=$('postContent').value.length;$('postContent').focus();showToast('轻模板已放入，可以按自己的话随意修改');}));
@@ -887,12 +881,12 @@
     ];
     let onboardingIndex=0;
     function renderOnboarding(){const step=onboardingSteps[onboardingIndex];$('onboardingTitle').textContent=step.title;$('onboardingText').textContent=step.text;$('onboardingIcon').setAttribute('data-lucide',step.icon);$('onboardingProgress').innerHTML=onboardingSteps.map((_,i)=>`<span class="${i===onboardingIndex?'active':''}"></span>`).join('');$('nextOnboarding').textContent=onboardingIndex===onboardingSteps.length-1?'开始浏览':'下一页';if(window.lucide)lucide.createIcons();}
-    function finishOnboarding(){localStorage.setItem('shuoba-onboarding-seen','true');$('onboardingModal').classList.add('hidden');document.body.style.overflow='';}
+    function finishOnboarding(){localStorage.setItem('shuoba-onboarding-v2-seen','true');$('onboardingModal').classList.add('hidden');document.body.style.overflow='';}
     $('nextOnboarding').addEventListener('click',()=>{if(onboardingIndex<onboardingSteps.length-1){onboardingIndex++;renderOnboarding();}else finishOnboarding();});$('skipOnboarding').addEventListener('click',finishOnboarding);
     document.querySelectorAll('[data-rank]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-rank]').forEach(x=>x.classList.toggle('active',x===btn));renderRanking(btn.dataset.rank);}));
     $('newNote').addEventListener('click',()=>{activeNoteId=null;$('noteTitle').value='';$('noteContent').value='';if(canvasReady)$('drawCanvas').getContext('2d').clearRect(0,0,$('drawCanvas').width,$('drawCanvas').height);showToast('已新建空白私密页');});
     $('saveNote').addEventListener('click',saveCurrentNote);$('eraserBtn').addEventListener('click',()=>{erasing=!erasing;$('eraserBtn').classList.toggle('primary',erasing);showToast(erasing?'已切换为橡皮':'已切换为画笔');});$('clearCanvas').addEventListener('click',()=>{if(canvasReady)$('drawCanvas').getContext('2d').clearRect(0,0,$('drawCanvas').width,$('drawCanvas').height);});
-    if(localStorage.getItem('shuoba-theme')==='dark')document.body.classList.add('dark');setAuthUI();initCategories(); renderCreators(); renderFeed(); if(window.lucide) lucide.createIcons();if(localStorage.getItem('shuoba-onboarding-seen')!=='true'){$('onboardingModal').classList.remove('hidden');document.body.style.overflow='hidden';renderOnboarding();}
+    if(localStorage.getItem('shuoba-theme')==='dark')document.body.classList.add('dark');setAuthUI();initCategories(); renderCreators(); renderFeed(); if(window.lucide) lucide.createIcons();if(localStorage.getItem('shuoba-onboarding-v2-seen')!=='true'){$('onboardingModal').classList.remove('hidden');document.body.style.overflow='hidden';renderOnboarding();}
   </script>
 </body>
 </html>
