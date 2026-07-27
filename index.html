@@ -467,10 +467,10 @@
   <div class="app">
     <aside class="sidebar">
       <nav class="primary-nav" aria-label="主要板块">
-        <button class="nav-btn" data-section="complaint"><i data-lucide="message-circle-warning"></i>吐槽专区</button>
         <button class="nav-btn active" data-section="all"><i data-lucide="house"></i>综合首页</button>
         <button class="nav-btn" data-section="share"><i data-lucide="book-open"></i>知识分享</button>
         <button class="nav-btn" data-section="gratitude"><i data-lucide="heart-handshake"></i>感激专区</button>
+        <button class="nav-btn" data-section="complaint"><i data-lucide="message-circle-warning"></i>吐槽专区</button>
         <button class="nav-btn" data-section="self"><i data-lucide="notebook-pen"></i>说给自己</button>
       </nav>
       <div class="side-heading"><span>分类浏览</span><i data-lucide="chevrons-up-down"></i></div>
@@ -718,7 +718,7 @@
       return `<div class="article-recommendations"><h3>看完这篇，还可以接着看</h3>${related.map(item=>`<button class="article-recommendation" data-article-recommend="${item.id}"><strong>${item.title}</strong><span>${item.category} · ${item.author} · ${item.likes} 人认可</span></button>`).join('')}</div>`;
     }
     function openArticlePage(postId){
-      const url=new URL(location.href);url.search='';url.searchParams.set('article',postId);url.searchParams.set('v','19');window.open(url.toString(),'_blank','noopener');
+      const url=new URL(location.href);url.search='';url.searchParams.set('article',postId);url.searchParams.set('v','23');location.href=url.toString();
     }
     function postHtml(p) {
       const tagClass = p.type==='question'?'question':p.type==='gratitude'?'gratitude':p.type==='complaint'?'complaint':'';
@@ -786,7 +786,7 @@
       if(!$('searchPage').classList.contains('hidden'))$('searchResultLabel').textContent=query?`找到 ${items.length} 条相关内容`:'输入问题或关键词';
       document.querySelectorAll('.like-btn').forEach(btn=>btn.addEventListener('click',()=>requireAuth(()=>{const liked=btn.classList.toggle('liked');const span=btn.querySelector('span');const number=Number((span.textContent.match(/\d+/)||['0'])[0])+(liked?1:-1);const label=span.textContent.startsWith('鼓励')?'鼓励 ':span.textContent.startsWith('抱抱')?'抱抱 ':'点赞 ';span.textContent=label+number;const post=posts.find(item=>String(item.id)===btn.closest('.post').dataset.post);if(post){preferredCategories[post.category]=Math.max(0,(preferredCategories[post.category]||0)+(liked?1:-1));localStorage.setItem('shuoba-preferred-categories',JSON.stringify(preferredCategories));if(!$('searchPage').classList.contains('hidden'))renderSearchRecommendations();}showToast(liked?'你的认可已送达，创作者会收到一份小小鼓励':'已收回这次认可');})));
       document.querySelectorAll('.save-btn').forEach(btn=>btn.addEventListener('click',()=>requireAuth(()=>{const id=btn.closest('.post').dataset.post;const saved=savedPosts.includes(id);savedPosts=saved?savedPosts.filter(item=>item!==id):[...savedPosts,id];localStorage.setItem('shuoba-saved-posts',JSON.stringify(savedPosts));btn.classList.toggle('liked',!saved);btn.querySelector('span').textContent=saved?'收藏':'已收藏';showToast(saved?'已从收藏中移除':'已安静地收进收藏，想看时再回来');})));
-      document.querySelectorAll('[data-open-post]').forEach(btn=>btn.addEventListener('click',()=>openArticlePage(btn.dataset.openPost)));
+      document.querySelectorAll('.post').forEach(card=>card.addEventListener('click',e=>{if(e.target.closest('button, input, textarea, select, a, .comment-box, .supplement-box'))return;openArticlePage(card.dataset.post);}));
       document.querySelectorAll('.supplement-toggle').forEach(btn=>btn.addEventListener('click',()=>btn.closest('.post').querySelector('.supplement-box').classList.toggle('hidden')));
       document.querySelectorAll('.comment-toggle').forEach(btn=>btn.addEventListener('click',()=>btn.closest('.post').querySelector('.comment-box').classList.toggle('hidden')));
       document.querySelectorAll('.share-toggle').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();const menu=btn.nextElementSibling;document.querySelectorAll('.share-menu').forEach(x=>{if(x!==menu)x.classList.add('hidden');});menu.classList.toggle('hidden');}));
