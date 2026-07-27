@@ -3,11 +3,104 @@
 
   const projectUrl = 'https://ofnuyswjjucnmfqzvqpw.supabase.co';
   const publishableKey = 'sb_publishable_vNDuaaPR3I5OOemZznqOxQ_ch1KhmNn';
-  if (!window.supabase || publishableKey.startsWith('__')) return;
+  if (publishableKey.startsWith('__')) return;
 
-  const cloud = window.supabase.createClient(projectUrl, publishableKey, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-  });
+  function createCloudClient(baseUrl, apiKey) {
+    const sessionKey = 'shuoba-cloud-session';
+    const listeners = [];
+    let session = (() => { try { return JSON.parse(localStorage.getItem(sessionKey) || 'null'); } catch { return null; } })();
+
+    async function request(path, options = {}) {
+      const headers = {
+        apikey: apiKey,
+        Authorization: `Bearer ${session?.access_token || apiKey}`,
+        ...options.headers
+      };
+      if (options.body !== undefined) headers['Content-Type'] = 'application/json';
+      const response = await fetch(`${baseUrl}${path}`, {
+        method: options.method || 'GET',
+        headers,
+        body: options.body === undefined ? undefined : JSON.stringify(options.body)
+      });
+      const text = await response.text();
+      let data = null;
+      try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+      if (!response.ok) {
+        const error = new Error(data?.message || data?.msg || data?.error_description || data?.error || `请求失败（${response.status}）`);
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
+
+    function saveSession(next) {
+      session = next?.access_token ? next : null;
+      if (session) localStorage.setItem(sessionKey, JSON.stringify(session));
+      else localStorage.removeItem(sessionKey);
+      listeners.forEach(listener => listener(session ? 'SIGNED_IN' : 'SIGNED_OUT', session));
+    }
+
+    class Query {
+      constructor(table) {
+        this.table = table;
+        this.method = 'GET';
+        this.params = new URLSearchParams();
+        this.body = undefined;
+        this.headers = {};
+        this.singleMode = '';
+      }
+      select(columns = '*') { this.params.set('select', columns); return this; }
+      insert(value) { this.method = 'POST'; this.body = value; this.headers.Prefer = 'return=representation'; return this; }
+      update(value) { this.method = 'PATCH'; this.body = value; this.headers.Prefer = 'return=representation'; return this; }
+      delete() { this.method = 'DELETE'; this.headers.Prefer = 'return=representation'; return this; }
+      eq(column, value) { this.params.append(column, `eq.${value}`); return this; }
+      ilike(column, value) { this.params.append(column, `ilike.${value}`); return this; }
+      order(column, options = {}) { this.params.set('order', `${column}.${options.ascending === false ? 'desc' : 'asc'}`); return this; }
+      limit(value) { this.params.set('limit', String(value)); return this; }
+      single() { this.singleMode = 'single'; this.headers.Accept = 'application/vnd.pgrst.object+json'; return this; }
+      maybeSingle() { this.singleMode = 'maybe'; this.headers.Accept = 'application/vnd.pgrst.object+json'; return this; }
+      async execute() {
+        try {
+          const query = this.params.toString();
+          const data = await request(`/rest/v1/${this.table}${query ? `?${query}` : ''}`, { method: this.method, headers: this.headers, body: this.body });
+          return { data, error: null };
+        } catch (error) {
+          if (this.singleMode === 'maybe' && error.status === 406) return { data: null, error: null };
+          return { data: null, error };
+        }
+      }
+      then(resolve, reject) { return this.execute().then(resolve, reject); }
+    }
+
+    return {
+      from: table => new Query(table),
+      rpc: async (name, args) => {
+        try { return { data: await request(`/rest/v1/rpc/${name}`, { method: 'POST', body: args }), error: null }; }
+        catch (error) { return { data: null, error }; }
+      },
+      auth: {
+        getSession: async () => ({ data: { session } }),
+        signUp: async ({ email, password, options }) => {
+          try {
+            const data = await request('/auth/v1/signup', { method: 'POST', body: { email, password, data: options?.data || {} } });
+            const next = data?.access_token ? data : data?.session;
+            if (next) saveSession(next);
+            return { data: { user: data?.user || null, session: next || null }, error: null };
+          } catch (error) { return { data: null, error }; }
+        },
+        signInWithPassword: async ({ email, password }) => {
+          try {
+            const data = await request('/auth/v1/token?grant_type=password', { method: 'POST', body: { email, password } });
+            saveSession(data);
+            return { data: { user: data.user, session: data }, error: null };
+          } catch (error) { return { data: null, error }; }
+        },
+        onAuthStateChange: callback => { listeners.push(callback); return { data: { subscription: { unsubscribe() {} } } }; }
+      }
+    };
+  }
+
+  const cloud = createCloudClient(projectUrl, publishableKey);
   window.shuobaCloud = cloud;
   window.shuobaCloudProfiles = [];
   window.shuobaCloudUser = null;
