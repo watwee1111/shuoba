@@ -49,7 +49,7 @@ async function api(req, res, pathname) {
     return sendJson(res, 200, { message: '开发验证码已生成', developmentCode: code });
   }
   if (pathname === '/api/auth/verify' && req.method === 'POST') {
-    const { phone, code, mode } = await readJson(req);
+    const { phone, code, mode, nickname } = await readJson(req);
     const pending = codes.get(phone);
     if (!pending || pending.expiresAt < Date.now() || pending.code !== code) {
       return sendJson(res, 400, { message: '验证码错误或已过期' });
@@ -58,8 +58,14 @@ async function api(req, res, pathname) {
     let user = users.find(item => item.phone === phone);
     if (mode === 'login' && !user) return sendJson(res, 404, { message: '该手机号尚未注册，请先注册' });
     if (mode === 'register' && user) return sendJson(res, 409, { message: '该手机号已经注册，请直接登录' });
+    if (mode === 'register' && (!nickname || nickname.length < 2 || nickname.length > 12)) {
+      return sendJson(res, 400, { message: '昵称需要2至12个字' });
+    }
+    if (mode === 'register' && users.some(item => item.nickname?.toLowerCase() === nickname.toLowerCase())) {
+      return sendJson(res, 409, { message: '这个昵称已经有人使用，请换一个名字' });
+    }
     if (!user) {
-      user = { id: crypto.randomUUID(), phone, nickname: `说友${phone.slice(-4)}`, createdAt: new Date().toISOString() };
+      user = { id: crypto.randomUUID(), phone, nickname, createdAt: new Date().toISOString() };
       users.push(user);
       writeUsers(users);
     }

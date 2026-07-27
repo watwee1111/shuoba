@@ -383,6 +383,15 @@
     .search-page-head h2 { margin: 0; font-size: 17px; }
     .search-page-head span { color: var(--muted); font-size: 11px; }
     .search-recommend { margin-top: 12px; padding-top: 14px; border-top: 1px solid var(--line); }
+    .people-search { margin-top:12px; padding:14px 16px; border-top:2px solid var(--green); background:var(--surface); }
+    .people-search-head { display:flex; align-items:end; justify-content:space-between; gap:12px; margin-bottom:8px; }
+    .people-search-head h3 { margin:0; font-size:14px; }
+    .people-search-head span { color:var(--muted); font-size:10px; }
+    .people-result { display:grid; grid-template-columns:42px minmax(0,1fr) auto; align-items:center; gap:10px; padding:11px 0; border-top:1px solid var(--line); }
+    .people-result:first-child { border-top:0; }
+    .people-result-copy strong,.people-result-copy span { display:block; }
+    .people-result-copy span { margin-top:3px; color:var(--muted); font-size:10px; }
+    .people-result-actions { display:flex; gap:6px; }
     .search-recommend-head { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
     .search-recommend-head h3 { margin: 0; font-size: 15px; }
     .search-recommend-head span { color: var(--muted); font-size: 10px; }
@@ -462,6 +471,8 @@
       .post h2 { font-size: 17px; }
       .form-grid { grid-template-columns: 1fr; }
       .recommend-list { grid-template-columns: 1fr; }
+      .people-result { grid-template-columns:38px minmax(0,1fr); }
+      .people-result-actions { grid-column:1 / -1; padding-left:48px; }
       .field.full { grid-column: auto; }
       .modal-foot { align-items: stretch; flex-direction: column; }
       .modal-foot .btn { width: 100%; }
@@ -572,7 +583,7 @@
       <section class="gratitude-guide hidden" id="gratitudeGuide"><div class="gratitude-guide-head"><i data-lucide="heart-handshake"></i><div><strong>有些好，不大，但会被记很久</strong><span>不用写得漂亮，想起谁，就把那件小事说出来。</span></div></div><div class="gratitude-prompts"><div class="gratitude-prompt">今天有没有谁，顺手替你接住了一点狼狈？</div><div class="gratitude-prompt">哪句普通的话，让你突然觉得“还好有人懂”？</div><div class="gratitude-prompt">也可以谢谢那个撑过一段难熬日子的自己。</div></div></section>
       <section class="complaint-guide hidden" id="complaintGuide"><h3>可以吐槽，也可以一起想想办法</h3><p>欢迎说出生活里的委屈、烦恼和不解。真实情绪会被接住，但禁止挂人、泄露隐私、人身攻击、网暴和恶意引战。讨论尽量对事不对人。</p><div class="complaint-rules"><span>允许真实情绪</span><span>支持匿名发布</span><span>共情安慰</span><span>理性讨论</span><span>拒绝挂人与网暴</span></div><button class="btn primary" style="margin-top:12px" data-compose="complaint"><i data-lucide="square-pen"></i>匿名吐槽一下</button></section>
       <div class="hot-topic-bar"><button data-hot="普通人实用经验">#普通人实用经验</button><button data-hot="如何缓解内耗">#如何缓解内耗</button><button data-hot="职场生活">#职场生活</button><button data-hot="暗恋">#暗恋心事</button></div>
-      <section class="search-page hidden" id="searchPage"><div class="search-page-head"><h2>搜索结果</h2><span id="searchResultLabel">输入问题或关键词</span></div><div class="search-recommend"><div class="search-recommend-head"><h3>猜你喜欢</h3><span>根据你的阅读偏好与社区热度推荐</span></div><div class="recommend-list" id="searchRecommendList"></div></div></section>
+      <section class="search-page hidden" id="searchPage"><div class="search-page-head"><h2>搜索结果</h2><span id="searchResultLabel">输入文章、观点或用户昵称</span></div><div class="people-search"><div class="people-search-head"><h3>相关用户</h3><span id="peopleSearchLabel">输入昵称即可查找</span></div><div id="peopleSearchResults"></div></div><div class="search-recommend"><div class="search-recommend-head"><h3>猜你喜欢</h3><span>根据你的阅读偏好与社区热度推荐</span></div><div class="recommend-list" id="searchRecommendList"></div></div></section>
       <div class="feed-tabs"><button class="feed-tab active" data-sort="recommend">为你推荐</button><button class="feed-tab" data-sort="latest">最新言说</button><button class="feed-tab" data-sort="following">我的关注</button></div>
       <section class="feed" id="feed"></section>
       <div class="feed-loader" id="feedLoader">正在加载更多言说</div>
@@ -806,6 +817,7 @@
     let analyticsTimer = null;
     let preferredCategories = JSON.parse(localStorage.getItem('shuoba-preferred-categories') || '{}');
     let savedPosts = JSON.parse(localStorage.getItem('shuoba-saved-posts') || '[]');
+    let followedUsers = JSON.parse(localStorage.getItem('shuoba-followed-users') || '[]');
     let selectedRegisterAvatar = {text:'问',color:'#176b4d'};
     const analyticsData={online:1286,dau:18642,register:736,publish:2418,interact:36905,debate:84,blocked:316,trend:[420,380,310,280,360,520,760,980,1160,1240,1320,1450]};
     const $ = id => document.getElementById(id);
@@ -815,7 +827,7 @@
     function closeAuth(){$('authModal').classList.add('hidden');document.body.style.overflow='';}
     function requireAuth(action){if(isAuthenticated){action();return true;}openAuth(action);return false;}
     function applyAccountAppearance(){const nickname=localStorage.getItem('shuoba-nickname')||'知行';const avatarText=localStorage.getItem('shuoba-avatar-text')||nickname.slice(0,2);const avatarColor=localStorage.getItem('shuoba-avatar-color')||'#176b4d';[$('profileAvatar'),$('profileLargeAvatar')].forEach(el=>{el.textContent=avatarText;el.style.background=avatarColor;});}
-    function completeAuth(method,session=''){isAuthenticated=true;if(session)localStorage.setItem('shuoba-session',session);localStorage.setItem('shuoba-authenticated','true');if(authMode==='register'){const nickname=$('nicknameInput').value.trim();localStorage.setItem('shuoba-nickname',nickname);localStorage.setItem('shuoba-avatar-text',selectedRegisterAvatar.text);localStorage.setItem('shuoba-avatar-color',selectedRegisterAvatar.color);applyAccountAppearance();}setAuthUI();closeAuth();showToast(`${method}成功，欢迎来到说吧`);const action=pendingAuthAction;pendingAuthAction=null;if(action)setTimeout(action,0);}
+    function completeAuth(method,session=''){isAuthenticated=true;if(session)localStorage.setItem('shuoba-session',session);localStorage.setItem('shuoba-authenticated','true');if(authMode==='register'){const nickname=$('nicknameInput').value.trim();localStorage.setItem('shuoba-nickname',nickname);const registered=JSON.parse(localStorage.getItem('shuoba-registered-names')||'[]');if(!registered.some(name=>name.toLowerCase()===nickname.toLowerCase()))registered.push(nickname);localStorage.setItem('shuoba-registered-names',JSON.stringify(registered));localStorage.setItem('shuoba-avatar-text',selectedRegisterAvatar.text);localStorage.setItem('shuoba-avatar-color',selectedRegisterAvatar.color);applyAccountAppearance();}setAuthUI();closeAuth();showToast(`${method}成功，欢迎来到说吧`);const action=pendingAuthAction;pendingAuthAction=null;if(action)setTimeout(action,0);}
 
     function initCategories() {
       $('categoryList').innerHTML = Object.entries(categories).map(([name, groups], i) => `<div class="category"><button data-category="${name}"><span><i data-lucide="${icons[i]}"></i>${name}</span><i data-lucide="chevron-down"></i></button><div class="subcats">${Object.entries(groups).map(([group, leaves]) => `<div class="subcat-group"><button class="subcat-toggle" data-group-toggle><span>${group}</span><i data-lucide="chevron-right"></i></button><div class="leafcats">${leaves.map(leaf => `<button data-sub="${leaf}" data-major="${name}" data-group="${group}">${leaf}</button>`).join('')}</div></div>`).join('')}</div></div>`).join('');
@@ -889,13 +901,15 @@
       else {
         const personPosts=posts.filter(p=>p.author===author),simulated=personPosts.some(p=>p.role?.includes('内测模拟用户'));
         const friendState=JSON.parse(localStorage.getItem('shuoba-friend-state')||'{}'),messageState=JSON.parse(localStorage.getItem('shuoba-message-state')||'{}');
-        const state=friendState[author]||'none',sent=Boolean(messageState[author]);
+        const state=friendState[author]||'none',sent=Boolean(messageState[author]),isFollowed=followedUsers.includes(author);
         const seed=[...author].reduce((sum,char)=>sum+char.charCodeAt(0),0),following=12+seed%86,fans=38+seed%1900,cadence=creatorCadence[author]||'不定期更新';
         const avatarText=personPosts[0]?.avatar||author.slice(0,1),avatarColor=personPosts[0]?.color||'#68736e';
         const coverPalette=['#dce9e6','#f0e5d6','#e7dfe8','#e5e9d8','#e9dfdc'],cover=author==='周知行'?profileCover:coverPalette[seed%coverPalette.length];
         const ownFollowing=author==='周知行'&&hideFollowing,ownFans=author==='周知行'&&hideFans;
         $('publicProfileContent').innerHTML=`<div class="public-profile-hero" style="background:${escapeHtml(cover)}"><div class="public-profile-identity"><div class="avatar" style="background:${escapeHtml(avatarColor)}">${escapeHtml(avatarText)}</div><div class="public-profile-copy"><h3>${escapeHtml(author)}</h3><p>${personPosts.length} 条公开内容 · ${escapeHtml(cadence)}</p>${simulated?'<span class="sim-label">内测模拟用户 · 用于功能体验</span>':''}</div></div></div><div class="public-profile-stats"><div><strong>${personPosts.length}</strong><span>作品</span></div><div><strong>${ownFollowing?'已隐藏':following}</strong><span>关注</span></div><div><strong>${ownFans?'已隐藏':fans}</strong><span>粉丝</span></div></div><div class="profile-posts"><div class="profile-posts-head"><strong>最近发布</strong><span>向下滚动查看全部 ${personPosts.length} 篇</span></div>${personPosts.map(p=>`<button class="profile-post-link" data-profile-post="${p.id}"><strong>${escapeHtml(p.title)}</strong><span>${p.time} · ${p.category} · ${p.likes} 人认可</span></button>`).join('')||'<p>暂时还没有公开内容</p>'}</div><div class="profile-connect"><button class="btn small" id="profileFriendRequest" ${state!=='none'?'disabled':''}>${state==='accepted'?'已是好友':state==='pending'?'等待对方同意':'申请好友'}</button><button class="btn small primary" id="profileOneMessage" ${state!=='accepted'||sent?'disabled':''}>${sent?'私信已发送':'发送一次私信'}</button><div class="profile-connect-note">好友申请需对方同意。内测期间，同意后仅允许发送一条私信；对方未同意前不能私信。</div></div>`;
+        $('publicProfileContent').querySelector('.profile-connect').insertAdjacentHTML('afterbegin',`<button class="btn small ${isFollowed?'primary':''}" id="profileFollowUser">${isFollowed?'已关注':'关注用户'}</button>`);
         document.querySelectorAll('[data-profile-post]').forEach(btn=>btn.addEventListener('click',()=>{closePublicProfile();openArticlePage(btn.dataset.profilePost);}));
+        $('profileFollowUser').addEventListener('click',()=>requireAuth(()=>{followedUsers=followedUsers.includes(author)?followedUsers.filter(item=>item!==author):[...followedUsers,author];localStorage.setItem('shuoba-followed-users',JSON.stringify(followedUsers));$('profileFollowUser').textContent=followedUsers.includes(author)?'已关注':'关注用户';$('profileFollowUser').classList.toggle('primary',followedUsers.includes(author));showToast(followedUsers.includes(author)?`已关注${author}`:`已取消关注${author}`);}));
         $('profileFriendRequest').addEventListener('click',()=>{friendState[author]='pending';localStorage.setItem('shuoba-friend-state',JSON.stringify(friendState));$('profileFriendRequest').disabled=true;$('profileFriendRequest').textContent='等待对方同意';showToast('好友申请已发送');if(['北港玩家','清水同学','派蒙没有摩拉'].includes(author)){setTimeout(()=>{friendState[author]='accepted';localStorage.setItem('shuoba-friend-state',JSON.stringify(friendState));showToast(`${author}同意了你的好友申请，再次进入主页可发送一条私信`);},1800);}});
         $('profileOneMessage').addEventListener('click',()=>{const text=window.prompt(`给${author}发送一条私信（仅此一次）`,'你好，读完你的文章很有共鸣。');if(!text?.trim())return;messageState[author]=text.trim().slice(0,200);localStorage.setItem('shuoba-message-state',JSON.stringify(messageState));$('profileOneMessage').disabled=true;$('profileOneMessage').textContent='私信已发送';showToast('私信已送达，后续交流需等待对方回应');});
       }
@@ -1005,8 +1019,22 @@
       $('searchRecommendList').innerHTML=ranked.map(post=>`<button class="recommend-item" data-recommend-post="${post.id}"><strong>${post.title}</strong><span>${post.category} · ${post.author} · ${post.likes} 人认可</span></button>`).join('');
       document.querySelectorAll('[data-recommend-post]').forEach(btn=>btn.addEventListener('click',()=>{const post=posts.find(item=>String(item.id)===btn.dataset.recommendPost);if(!post)return;openSearchPage(post.title);}));
     }
+    function searchablePeople(){
+      const map=new Map();
+      posts.filter(p=>p.author&&p.author!=='匿名用户'&&p.author!=='周知行').forEach(p=>{if(!map.has(p.author))map.set(p.author,{name:p.author,role:p.role,avatar:p.avatar,color:p.color,count:0});map.get(p.author).count++;});
+      const ownName=localStorage.getItem('shuoba-nickname');if(ownName&&!map.has(ownName))map.set(ownName,{name:ownName,role:'内测用户',avatar:localStorage.getItem('shuoba-avatar-text')||ownName.slice(0,1),color:localStorage.getItem('shuoba-avatar-color')||'#176b4d',count:storedUserPosts.length});
+      return [...map.values()];
+    }
+    function renderPeopleSearch(query=''){
+      const keyword=query.trim().toLowerCase(),people=searchablePeople().filter(person=>!keyword||person.name.toLowerCase().includes(keyword)||person.role.toLowerCase().includes(keyword)).slice(0,8);
+      $('peopleSearchLabel').textContent=keyword?`找到 ${people.length} 位相关用户`:'推荐可以认识的人';
+      $('peopleSearchResults').innerHTML=people.length?people.map(person=>`<div class="people-result"><div class="avatar" style="background:${escapeHtml(person.color)}">${escapeHtml(person.avatar)}</div><div class="people-result-copy"><strong>${escapeHtml(person.name)}</strong><span>${escapeHtml(person.role)} · ${person.count} 篇公开作品</span></div><div class="people-result-actions"><button class="btn small" data-person-profile="${escapeHtml(person.name)}">主页</button><button class="btn small ${followedUsers.includes(person.name)?'primary':''}" data-person-follow="${escapeHtml(person.name)}">${followedUsers.includes(person.name)?'已关注':'关注'}</button></div></div>`).join(''):'<div class="empty">没有找到这个用户，请检查昵称是否完整</div>';
+      document.querySelectorAll('[data-person-profile]').forEach(btn=>btn.addEventListener('click',()=>openPublicProfile(btn.dataset.personProfile)));
+      document.querySelectorAll('[data-person-follow]').forEach(btn=>btn.addEventListener('click',()=>requireAuth(()=>{const name=btn.dataset.personFollow;followedUsers=followedUsers.includes(name)?followedUsers.filter(item=>item!==name):[...followedUsers,name];localStorage.setItem('shuoba-followed-users',JSON.stringify(followedUsers));renderPeopleSearch(query);showToast(followedUsers.includes(name)?`已关注${name}`:`已取消关注${name}`);}))); 
+      if(window.lucide)lucide.createIcons();
+    }
     function openSearchPage(query){
-      switchSection('all');currentCategory='';$('searchInput').value=query;$('searchPage').classList.remove('hidden');document.querySelector('.composer-row').classList.add('hidden');$('sectionTitle').textContent='搜索结果';$('sectionDesc').textContent='继续用顶部搜索框查找，也可以向下浏览根据兴趣整理的推荐内容。';renderSearchRecommendations();renderFeed();window.scrollTo({top:0,behavior:'smooth'});$('searchInput').focus();
+      switchSection('all');currentCategory='';$('searchInput').value=query;$('searchPage').classList.remove('hidden');document.querySelector('.composer-row').classList.add('hidden');$('sectionTitle').textContent='搜索结果';$('sectionDesc').textContent='可以查文章、观点和用户昵称，找到感兴趣的人后进入主页申请好友。';$('searchResultLabel').textContent=query?`正在搜索：${query}`:'输入文章、观点或用户昵称';renderPeopleSearch(query);renderSearchRecommendations();renderFeed();window.scrollTo({top:0,behavior:'smooth'});$('searchInput').focus();
     }
     const followingPeople=[{name:'林溪',detail:'学习方法 · 已关注',avatar:'林',color:'#176b4d'},{name:'陈屿',detail:'运动康复 · 已关注',avatar:'陈',color:'#326b83'},{name:'唐其',detail:'社会观察 · 已关注',avatar:'唐',color:'#8b5c34'}];
     const fanPeople=[{name:'夏禾',detail:'关注了你 · 3天前',avatar:'夏',color:'#a66b09'},{name:'江澄',detail:'关注了你 · 1周前',avatar:'江',color:'#674f86'},{name:'沈言',detail:'经常阅读你的回答',avatar:'沈',color:'#c7533f'}];
@@ -1157,7 +1185,7 @@
     const serverMode=(location.protocol==='http:'||location.protocol==='https:')&&!location.hostname.endsWith('github.io');
     async function authRequest(path,payload){const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const result=await response.json();if(!response.ok)throw new Error(result.message||'请求失败，请稍后重试');return result;}
     let codeSeconds=0,codeTimer=null;$('sendCode').addEventListener('click',async()=>{const phone=$('phoneInput').value.trim();if(!/^1\d{10}$/.test(phone)){showToast('请输入正确的11位手机号');return;}try{let message='本地演示验证码为 123456';if(serverMode){const result=await authRequest('/api/auth/code',{phone});message=result.developmentCode?`开发验证码为 ${result.developmentCode}`:result.message;}codeSeconds=60;$('sendCode').disabled=true;$('sendCode').textContent='60秒后重发';clearInterval(codeTimer);codeTimer=setInterval(()=>{codeSeconds--;$('sendCode').textContent=codeSeconds?`${codeSeconds}秒后重发`:'获取验证码';if(!codeSeconds){clearInterval(codeTimer);$('sendCode').disabled=false;}},1000);showToast(message);}catch(error){showToast(error.message);}});
-    $('authForm').addEventListener('submit',async e=>{e.preventDefault();const phone=$('phoneInput').value.trim(),code=$('codeInput').value.trim(),nickname=$('nicknameInput').value.trim();if(!/^1\d{10}$/.test(phone)){showToast('请输入正确的11位手机号');return;}if(authMode==='register'){if(nickname.length<2||nickname.length>12){showToast('昵称需要2至12个字');return;}if(/(官方|管理员|客服|站长|微信|QQ|vx|电话|1\d{10}|傻|蠢|垃圾|去死|色情|赌博|仇恨)/i.test(nickname)){showToast('昵称包含冒充、联系方式、攻击或违规表达，请重新命名');return;}if(!/^[\u4e00-\u9fa5A-Za-z0-9_-]+$/.test(nickname)){showToast('昵称只使用中文、字母、数字、下划线或短横线');return;}}try{if(serverMode){const result=await authRequest('/api/auth/verify',{phone,code,mode:authMode,nickname});completeAuth(authMode==='login'?'登录':'注册',result.token);}else{if(code!=='123456')throw new Error('请输入本地演示验证码 123456');completeAuth(authMode==='login'?'登录':'注册');}}catch(error){showToast(error.message);}});
+    $('authForm').addEventListener('submit',async e=>{e.preventDefault();const phone=$('phoneInput').value.trim(),code=$('codeInput').value.trim(),nickname=$('nicknameInput').value.trim();if(!/^1\d{10}$/.test(phone)){showToast('请输入正确的11位手机号');return;}if(authMode==='register'){if(nickname.length<2||nickname.length>12){showToast('昵称需要2至12个字');return;}if(/(官方|管理员|客服|站长|微信|QQ|vx|电话|1\d{10}|傻|蠢|垃圾|去死|色情|赌博|仇恨)/i.test(nickname)){showToast('昵称包含冒充、联系方式、攻击或违规表达，请重新命名');return;}if(!/^[\u4e00-\u9fa5A-Za-z0-9_-]+$/.test(nickname)){showToast('昵称只使用中文、字母、数字、下划线或短横线');return;}const registeredNames=JSON.parse(localStorage.getItem('shuoba-registered-names')||'[]'),usedNames=[...new Set([...searchablePeople().map(person=>person.name),...registeredNames,'周知行'])];if(usedNames.some(name=>name.toLowerCase()===nickname.toLowerCase())){showToast('这个昵称已经有人使用，请换一个更独特的名字');return;}}try{if(serverMode){const result=await authRequest('/api/auth/verify',{phone,code,mode:authMode,nickname});completeAuth(authMode==='login'?'登录':'注册',result.token);}else{if(code!=='123456')throw new Error('请输入本地演示验证码 123456');completeAuth(authMode==='login'?'登录':'注册');}}catch(error){showToast(error.message);}});
     $('wechatAuth').addEventListener('click',()=>completeAuth('微信快捷登录'));$('qqAuth').addEventListener('click',()=>completeAuth('QQ快捷登录'));
     const onboardingSteps=[
       {icon:'message-circle-warning',title:'可以匿名吐槽，真实说出烦恼',text:'吐槽专区支持一键匿名发布，其他用户看不到你的公开身份；匿名不代表无需负责，内容仍会经过安全审核。这里接纳委屈、烦恼和不解，也鼓励共情安慰与交流处理思路；禁止挂人、泄露隐私、人身攻击和组织网暴。'},
