@@ -107,6 +107,41 @@
 
   const byId = id => document.getElementById(id);
   const cloudPostIds = new Set();
+  const localAccountsKey = 'shuoba-local-accounts-v2';
+  const localCurrentKey = 'shuoba-local-current-v2';
+  window.shuobaLocalUser = null;
+
+  function readLocalAccounts() {
+    try { return JSON.parse(localStorage.getItem(localAccountsKey) || '[]'); } catch { return []; }
+  }
+
+  async function passwordDigest(password, salt) {
+    const bytes = new TextEncoder().encode(`${salt}:${password}`);
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    return Array.from(new Uint8Array(digest)).map(value => value.toString(16).padStart(2, '0')).join('');
+  }
+
+  function setLocalIdentity(account) {
+    window.shuobaLocalUser = account;
+    isAuthenticated = true;
+    localStorage.setItem(localCurrentKey, account.username);
+    localStorage.setItem('shuoba-authenticated', 'true');
+    localStorage.setItem('shuoba-session', `local-${account.username}`);
+    localStorage.setItem('shuoba-nickname', account.nickname);
+    localStorage.setItem('shuoba-avatar-text', account.nickname.slice(0, 1));
+    const profileName = document.querySelector('#myProfileHead .profile-copy h2');
+    if (profileName) profileName.textContent = account.nickname;
+    if (typeof applyAccountAppearance === 'function') applyAccountAppearance();
+    if (typeof setAuthUI === 'function') setAuthUI();
+  }
+
+  function restoreLocalSession() {
+    const username = localStorage.getItem(localCurrentKey);
+    const account = readLocalAccounts().find(item => item.username === username);
+    if (!account) return false;
+    setLocalIdentity(account);
+    return true;
+  }
 
   function friendlyError(error) {
     const message = String(error?.message || error || '操作失败');
@@ -132,7 +167,9 @@
   }
 
   function clearLegacyDemoLogin() {
+    if (restoreLocalSession()) return;
     window.shuobaCloudUser = null;
+    window.shuobaLocalUser = null;
     isAuthenticated = false;
     localStorage.removeItem('shuoba-session');
     localStorage.removeItem('shuoba-authenticated');
@@ -233,48 +270,64 @@
     if (!account || !password) return;
     const accountLabel = document.querySelector('label[for="phoneInput"]');
     const passwordLabel = document.querySelector('label[for="codeInput"]');
-    if (accountLabel) accountLabel.textContent = '邮箱';
+    if (accountLabel) accountLabel.textContent = '账号名';
     if (passwordLabel) passwordLabel.textContent = '密码';
-    account.type = 'email';
-    account.inputMode = 'email';
-    account.maxLength = 80;
-    account.placeholder = '请输入常用邮箱';
+    account.type = 'text';
+    account.inputMode = 'text';
+    account.maxLength = 20;
+    account.placeholder = '设置4至20位账号名';
     password.type = 'password';
     password.inputMode = 'text';
     password.maxLength = 72;
     password.placeholder = '至少6位密码';
     if (sendCode) sendCode.classList.add('hidden');
+    let confirmField = byId('confirmPasswordField');
+    if (!confirmField) {
+      confirmField = document.createElement('div');
+      confirmField.className = 'field hidden';
+      confirmField.id = 'confirmPasswordField';
+      confirmField.style.marginTop = '12px';
+      confirmField.innerHTML = '<label for="confirmPasswordInput">确认密码</label><input id="confirmPasswordInput" type="password" maxlength="72" placeholder="请再次输入密码">';
+      password.closest('.field').insertAdjacentElement('afterend', confirmField);
+    }
     const note = document.querySelector('.rule-note');
-    if (note) note.textContent = '内测阶段使用邮箱和密码注册。注册信息会加密保存，请勿与他人共用密码。';
+    if (note) note.textContent = '首次使用请重新注册内测账号。密码经过摘要处理后保存在当前设备，请妥善记住账号名和密码。';
     document.querySelector('.auth-divider')?.classList.add('hidden');
     document.querySelector('.social-auth')?.classList.add('hidden');
+    document.querySelectorAll('[data-auth-tab]').forEach(button => button.addEventListener('click', () => {
+      setTimeout(() => confirmField.classList.toggle('hidden', authMode !== 'register'), 0);
+    }));
   }
 
   document.addEventListener('submit', async event => {
     if (event.target?.id === 'authForm') {
       event.preventDefault();
       event.stopImmediatePropagation();
-      const email = byId('phoneInput').value.trim();
+      const username = byId('phoneInput').value.trim();
       const password = byId('codeInput').value;
+      const confirmPassword = byId('confirmPasswordInput')?.value || '';
       const nickname = byId('nicknameInput').value.trim();
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showCloudToast('请输入正确的邮箱地址');
+      if (!/^[A-Za-z0-9_-]{4,20}$/.test(username)) return showCloudToast('账号名需要4至20位，只能使用字母、数字、下划线或短横线');
       if (password.length < 6) return showCloudToast('密码至少需要6位');
       try {
+        const accounts = readLocalAccounts();
         if (authMode === 'register') {
           if (nickname.length < 2 || nickname.length > 12) return showCloudToast('昵称需要2至12个字');
-          const { data: existing } = await cloud.from('profiles').select('id').ilike('nickname', nickname).limit(1);
-          if (existing?.length) return showCloudToast('这个昵称已经有人使用，请换一个名字');
-          const { data, error } = await cloud.auth.signUp({ email, password, options: { data: { nickname } } });
-          if (error) throw error;
-          if (!data.session) {
-            showCloudToast('注册信息已提交，请到邮箱点击确认链接后再登录');
-            return;
-          }
+          if (password !== confirmPassword) return showCloudToast('两次输入的密码不一致');
+          if (accounts.some(item => item.username.toLowerCase() === username.toLowerCase())) return showCloudToast('这个账号名已经注册，请直接登录');
+          if (accounts.some(item => item.nickname.toLowerCase() === nickname.toLowerCase())) return showCloudToast('这个昵称已经有人使用，请换一个名字');
+          const salt = crypto.randomUUID();
+          const account = { username, nickname, salt, passwordHash: await passwordDigest(password, salt), createdAt: new Date().toISOString() };
+          accounts.push(account);
+          localStorage.setItem(localAccountsKey, JSON.stringify(accounts));
+          setLocalIdentity(account);
         } else {
-          const { error } = await cloud.auth.signInWithPassword({ email, password });
-          if (error) throw error;
+          const account = accounts.find(item => item.username.toLowerCase() === username.toLowerCase());
+          if (!account) return showCloudToast('没有找到这个账号，请先注册');
+          const passwordHash = await passwordDigest(password, account.salt);
+          if (passwordHash !== account.passwordHash) return showCloudToast('账号名或密码不正确');
+          setLocalIdentity(account);
         }
-        await refreshSession();
         if (typeof closeAuth === 'function') closeAuth();
         showCloudToast(authMode === 'register' ? '注册成功，欢迎来到说吧' : '登录成功');
       } catch (error) {
@@ -284,6 +337,7 @@
     }
 
     if (event.target?.id === 'publishForm') {
+      if (window.shuobaLocalUser && !window.shuobaCloudUser) return;
       event.preventDefault();
       event.stopImmediatePropagation();
       if (!window.shuobaCloudUser) return showCloudToast('请先登录再发布');
@@ -323,6 +377,26 @@
     const nicknameButton = event.target.closest('#changeNickname');
     if (nicknameButton) {
       event.preventDefault();
+      if (window.shuobaLocalUser && !window.shuobaCloudUser) {
+        const oldNickname = window.shuobaLocalUser.nickname;
+        const nextNickname = window.prompt('输入新的昵称（2至12个字）', oldNickname)?.trim();
+        if (!nextNickname || nextNickname === oldNickname) return;
+        if (nextNickname.length < 2 || nextNickname.length > 12) return showCloudToast('昵称需要2至12个字');
+        if (!/^[\u4e00-\u9fa5A-Za-z0-9_-]+$/.test(nextNickname)) return showCloudToast('昵称只使用中文、字母、数字、下划线或短横线');
+        if (/(官方|管理员|客服|站长|微信|QQ|vx|电话|1\d{10}|傻|蠢|垃圾|去死|色情|赌博|仇恨)/i.test(nextNickname)) return showCloudToast('昵称包含冒充、联系方式、攻击或违规表达，请重新命名');
+        const accounts = readLocalAccounts();
+        if (accounts.some(item => item.username !== window.shuobaLocalUser.username && item.nickname.toLowerCase() === nextNickname.toLowerCase())) return showCloudToast('这个昵称已经有人使用，请换一个名字');
+        const account = accounts.find(item => item.username === window.shuobaLocalUser.username);
+        account.nickname = nextNickname;
+        localStorage.setItem(localAccountsKey, JSON.stringify(accounts));
+        storedUserPosts.forEach(post => { if (!post.is_anonymous && post.author === oldNickname) post.author = nextNickname; });
+        posts.forEach(post => { if (post.owner && post.author === oldNickname) post.author = nextNickname; });
+        localStorage.setItem('shuoba-user-posts', JSON.stringify(storedUserPosts));
+        setLocalIdentity(account);
+        if (typeof renderFeed === 'function') renderFeed();
+        showCloudToast('昵称修改成功');
+        return;
+      }
       if (!window.shuobaCloudUser) return showCloudToast('请先登录再修改昵称');
       const currentProfile = window.shuobaCloudProfiles.find(item => item.id === window.shuobaCloudUser.id);
       const nextNickname = window.prompt('输入新的昵称（2至12个字）', currentProfile?.nickname || '')?.trim();
@@ -359,6 +433,7 @@
 
     const followButton = event.target.closest('[data-person-follow],#profileFollowUser');
     if (followButton) {
+      if (window.shuobaLocalUser && !window.shuobaCloudUser) return;
       event.preventDefault();
       event.stopImmediatePropagation();
       if (!window.shuobaCloudUser) {
@@ -381,6 +456,7 @@
 
     const friendButton = event.target.closest('#profileFriendRequest');
     if (friendButton) {
+      if (window.shuobaLocalUser && !window.shuobaCloudUser) return;
       event.preventDefault();
       event.stopImmediatePropagation();
       if (!window.shuobaCloudUser) {
