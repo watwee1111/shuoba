@@ -509,7 +509,7 @@
   <header class="topbar">
     <div class="brand"><div class="brand-mark"><i data-lucide="message-square"></i></div><div><strong>说吧</strong><span>各抒所见，亦可一吐为快</span></div></div>
     <div class="search"><input id="searchInput" type="search" placeholder="搜索见闻、观点、话题" aria-label="全局搜索"><button id="searchBtn" aria-label="搜索"><i data-lucide="search"></i></button><div class="search-popover hidden" id="searchPopover"><strong>热门搜索</strong><div class="hot-searches"><button data-hot="怎么调整学习状态">怎么调整学习状态</button><button data-hot="如何缓解内耗">如何缓解内耗</button><button data-hot="普通人实用经验">普通人实用经验</button></div></div></div>
-    <div class="top-actions"><button class="icon-btn" id="themeToggle" aria-label="切换夜间模式"><i data-lucide="moon"></i></button><button class="icon-btn" id="analyticsEntry" aria-label="运营数据"><i data-lucide="chart-no-axes-combined"></i></button><button class="btn primary" id="topPublish"><i data-lucide="square-pen"></i>提笔言说</button><button class="btn" id="authEntry">登录 / 注册</button><button class="avatar hidden" id="profileAvatar" aria-label="随行 · 个人中心">知行</button><input class="hidden" id="avatarInput" type="file" accept="image/png,image/jpeg,image/webp"></div>
+    <div class="top-actions"><button class="icon-btn" id="themeToggle" aria-label="切换夜间模式"><i data-lucide="moon"></i></button><button class="icon-btn" id="analyticsEntry" aria-label="运营数据"><i data-lucide="chart-no-axes-combined"></i></button><button class="btn primary" id="topPublish"><i data-lucide="square-pen"></i>提笔言说</button><button class="btn" id="authEntry">随行 · 个人中心</button><button class="avatar hidden" id="profileAvatar" aria-label="随行 · 个人中心">知行</button><input class="hidden" id="avatarInput" type="file" accept="image/png,image/jpeg,image/webp"></div>
   </header>
   <div class="app">
     <aside class="sidebar">
@@ -778,8 +778,8 @@
     }
     function postHtml(p) {
       const tagClass = p.type==='question'?'question':p.type==='gratitude'?'gratitude':p.type==='complaint'?'complaint':'';
-      const tagText = p.type==='question'?'公开提问':p.type==='gratitude'?'感激记录':p.type==='complaint'?'吐槽专区':'知识分享';
-      const supportLabel=p.type==='gratitude'?'鼓励':p.type==='complaint'?'抱抱':'点赞';
+      const tagText = p.type==='question'?'公开提问':p.type==='gratitude'?'感念回响':p.type==='complaint'?'一吐为快':'见闻共享';
+      const supportLabel=p.type==='gratitude'?'鼓励':p.type==='complaint'?'抱抱':'赞同';
       const funTag=p.type==='gratitude'?'#普通人的感悟':p.category==='运动'?'#运动不硬撑':p.category==='学习'?'#摸鱼学点东西':'#三角洲小技巧';
       const hiddenIdentity=p.author==='周知行'&&profilePrivate;const displayAuthor=hiddenIdentity?'匿名用户':p.author,displayRole=hiddenIdentity?'主页内容已隐藏':p.role,displayAvatar=hiddenIdentity?'匿':p.avatar,displayColor=hiddenIdentity?'#68736e':p.color;
       const badge=p.badge||(p.owner?'新人首发':p.category==='学习'?'真诚复盘':p.type==='share'?'人话讲解':'');
