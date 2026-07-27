@@ -129,6 +129,18 @@
     if (typeof applyAccountAppearance === 'function') applyAccountAppearance();
   }
 
+  function ensureNicknameEditor() {
+    if (byId('changeNickname')) return;
+    const avatarButton = byId('changeAvatar');
+    if (!avatarButton) return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'btn small';
+    button.id = 'changeNickname';
+    button.textContent = '修改昵称';
+    avatarButton.insertAdjacentElement('beforebegin', button);
+  }
+
   async function loadProfiles() {
     const { data, error } = await cloud.from('profiles').select('id,nickname,avatar_url,bio,is_anonymous,show_following,show_followers');
     if (error) throw error;
@@ -289,6 +301,29 @@
   }, true);
 
   document.addEventListener('click', async event => {
+    const nicknameButton = event.target.closest('#changeNickname');
+    if (nicknameButton) {
+      event.preventDefault();
+      if (!window.shuobaCloudUser) return showCloudToast('请先登录再修改昵称');
+      const currentProfile = window.shuobaCloudProfiles.find(item => item.id === window.shuobaCloudUser.id);
+      const nextNickname = window.prompt('输入新的昵称（2至12个字）', currentProfile?.nickname || '')?.trim();
+      if (!nextNickname || nextNickname === currentProfile?.nickname) return;
+      if (nextNickname.length < 2 || nextNickname.length > 12) return showCloudToast('昵称需要2至12个字');
+      if (!/^[\u4e00-\u9fa5A-Za-z0-9_-]+$/.test(nextNickname)) return showCloudToast('昵称只使用中文、字母、数字、下划线或短横线');
+      if (/(官方|管理员|客服|站长|微信|QQ|vx|电话|1\d{10}|傻|蠢|垃圾|去死|色情|赌博|仇恨)/i.test(nextNickname)) return showCloudToast('昵称包含冒充、联系方式、攻击或违规表达，请重新命名');
+      const { data: existing, error: searchError } = await cloud.from('profiles').select('id').ilike('nickname', nextNickname).limit(1);
+      if (searchError) return showCloudToast(friendlyError(searchError));
+      if (existing?.some(item => item.id !== window.shuobaCloudUser.id)) return showCloudToast('这个昵称已经有人使用，请换一个名字');
+      const { error } = await cloud.from('profiles').update({ nickname: nextNickname, updated_at: new Date().toISOString() }).eq('id', window.shuobaCloudUser.id);
+      if (error) return showCloudToast(friendlyError(error));
+      localStorage.setItem('shuoba-nickname', nextNickname);
+      localStorage.setItem('shuoba-avatar-text', nextNickname.slice(0, 1));
+      await loadCloudPosts();
+      setCloudIdentity(window.shuobaCloudProfiles.find(item => item.id === window.shuobaCloudUser.id));
+      showCloudToast('昵称修改成功，已同步到你的文章和主页');
+      return;
+    }
+
     const deleteButton = event.target.closest('[data-my-post-delete]');
     if (deleteButton && cloudPostIds.has(String(deleteButton.dataset.myPostDelete))) {
       event.preventDefault();
@@ -373,6 +408,7 @@
   document.head.appendChild(style);
 
   prepareAuthForm();
+  ensureNicknameEditor();
   cloud.auth.onAuthStateChange(() => setTimeout(refreshSession, 0));
   refreshSession().catch(error => showCloudToast(`共享数据连接失败：${friendlyError(error)}`));
 })();

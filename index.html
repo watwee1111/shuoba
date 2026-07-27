@@ -1203,6 +1203,6 @@
     const feedObserver=new IntersectionObserver(entries=>{if(entries[0].isIntersecting&&!$('feedLoader').classList.contains('hidden')){feedVisibleCount+=6;renderFeed();}},{rootMargin:'240px'});feedObserver.observe($('feedLoader'));
     if(localStorage.getItem('shuoba-theme')==='dark')document.body.classList.add('dark');setAuthUI();initCategories();renderCreators();renderFeed();if(window.lucide)lucide.createIcons();const directArticleId=new URLSearchParams(location.search).get('article');if(directArticleId){document.body.classList.add('article-page');openArticle(directArticleId);document.querySelector('[data-read-mode="full"]')?.click();document.title=`${$('articleTitle').textContent} · 说吧`;}else if(localStorage.getItem('shuoba-onboarding-v4-seen')!=='true'){$('onboardingModal').classList.remove('hidden');document.body.style.overflow='hidden';renderOnboarding();}
   </script>
-  <script src="supabase-integration.js"></script>
+  <script src="supabase-integration.js?v=39"></script>
 </body>
 </html>
