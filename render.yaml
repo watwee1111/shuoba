@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: shuoba-community
+    runtime: static
+    buildCommand: ""
+    staticPublishPath: .
+    autoDeploy: true
