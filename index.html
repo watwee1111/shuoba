@@ -1022,6 +1022,7 @@
     function searchablePeople(){
       const map=new Map();
       posts.filter(p=>p.author&&p.author!=='匿名用户'&&p.author!=='周知行').forEach(p=>{if(!map.has(p.author))map.set(p.author,{name:p.author,role:p.role,avatar:p.avatar,color:p.color,count:0});map.get(p.author).count++;});
+      (window.shuobaCloudProfiles||[]).filter(profile=>!profile.is_anonymous).forEach(profile=>{const count=posts.filter(p=>p.authorId===profile.id).length;if(!map.has(profile.nickname))map.set(profile.nickname,{name:profile.nickname,role:'说吧内测用户',avatar:(profile.nickname||'说').slice(0,1),color:'#176b4d',count});});
       const ownName=localStorage.getItem('shuoba-nickname');if(ownName&&!map.has(ownName))map.set(ownName,{name:ownName,role:'内测用户',avatar:localStorage.getItem('shuoba-avatar-text')||ownName.slice(0,1),color:localStorage.getItem('shuoba-avatar-color')||'#176b4d',count:storedUserPosts.length});
       return [...map.values()];
     }
@@ -1203,6 +1204,6 @@
     const feedObserver=new IntersectionObserver(entries=>{if(entries[0].isIntersecting&&!$('feedLoader').classList.contains('hidden')){feedVisibleCount+=6;renderFeed();}},{rootMargin:'240px'});feedObserver.observe($('feedLoader'));
     if(localStorage.getItem('shuoba-theme')==='dark')document.body.classList.add('dark');setAuthUI();initCategories();renderCreators();renderFeed();if(window.lucide)lucide.createIcons();const directArticleId=new URLSearchParams(location.search).get('article');if(directArticleId){document.body.classList.add('article-page');openArticle(directArticleId);document.querySelector('[data-read-mode="full"]')?.click();document.title=`${$('articleTitle').textContent} · 说吧`;}else if(localStorage.getItem('shuoba-onboarding-v4-seen')!=='true'){$('onboardingModal').classList.remove('hidden');document.body.style.overflow='hidden';renderOnboarding();}
   </script>
-  <script src="supabase-integration.js?v=39"></script>
+  <script src="supabase-integration.js?v=41"></script>
 </body>
 </html>

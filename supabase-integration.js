@@ -126,7 +126,22 @@
     if (!profile) return;
     localStorage.setItem('shuoba-nickname', profile.nickname);
     localStorage.setItem('shuoba-avatar-text', (profile.nickname || '说').slice(0, 1));
+    const profileName = document.querySelector('#myProfileHead .profile-copy h2');
+    if (profileName) profileName.textContent = profile.nickname;
     if (typeof applyAccountAppearance === 'function') applyAccountAppearance();
+  }
+
+  function clearLegacyDemoLogin() {
+    window.shuobaCloudUser = null;
+    isAuthenticated = false;
+    localStorage.removeItem('shuoba-session');
+    localStorage.removeItem('shuoba-authenticated');
+    localStorage.removeItem('shuoba-nickname');
+    localStorage.removeItem('shuoba-avatar-text');
+    const profileName = document.querySelector('#myProfileHead .profile-copy h2');
+    if (profileName) profileName.textContent = '尚未登录';
+    if (byId('authEntry')) byId('authEntry').textContent = '登录 / 注册';
+    if (typeof setAuthUI === 'function') setAuthUI();
   }
 
   function ensureNicknameEditor() {
@@ -203,6 +218,8 @@
       localStorage.setItem('shuoba-session', data.session.access_token);
       const { data: profile } = await cloud.from('profiles').select('*').eq('id', window.shuobaCloudUser.id).single();
       setCloudIdentity(profile);
+    } else {
+      clearLegacyDemoLogin();
     }
     if (typeof setAuthUI === 'function') setAuthUI();
     await loadCloudPosts();
@@ -229,6 +246,8 @@
     if (sendCode) sendCode.classList.add('hidden');
     const note = document.querySelector('.rule-note');
     if (note) note.textContent = '内测阶段使用邮箱和密码注册。注册信息会加密保存，请勿与他人共用密码。';
+    document.querySelector('.auth-divider')?.classList.add('hidden');
+    document.querySelector('.social-auth')?.classList.add('hidden');
   }
 
   document.addEventListener('submit', async event => {
@@ -339,12 +358,17 @@
     }
 
     const followButton = event.target.closest('[data-person-follow],#profileFollowUser');
-    if (followButton && window.shuobaCloudUser) {
-      const nickname = followButton.dataset.personFollow || byId('publicProfileTitle')?.textContent;
-      const target = window.shuobaCloudProfiles.find(item => item.nickname === nickname);
-      if (!target || target.id === window.shuobaCloudUser.id) return;
+    if (followButton) {
       event.preventDefault();
       event.stopImmediatePropagation();
+      if (!window.shuobaCloudUser) {
+        if (typeof openAuth === 'function') openAuth();
+        return showCloudToast('登录后才能关注其他用户');
+      }
+      const profileTitle = byId('publicProfileTitle')?.textContent || '';
+      const nickname = followButton.dataset.personFollow || profileTitle.replace(/的主页$/, '');
+      const target = window.shuobaCloudProfiles.find(item => item.nickname === nickname);
+      if (!target || target.id === window.shuobaCloudUser.id) return;
       const { data: current } = await cloud.from('follows').select('follower_id').eq('follower_id', window.shuobaCloudUser.id).eq('following_id', target.id).maybeSingle();
       const query = current
         ? cloud.from('follows').delete().eq('follower_id', window.shuobaCloudUser.id).eq('following_id', target.id)
@@ -356,12 +380,16 @@
     }
 
     const friendButton = event.target.closest('#profileFriendRequest');
-    if (friendButton && window.shuobaCloudUser) {
-      const nickname = byId('publicProfileTitle')?.textContent;
-      const target = window.shuobaCloudProfiles.find(item => item.nickname === nickname);
-      if (!target || target.id === window.shuobaCloudUser.id) return;
+    if (friendButton) {
       event.preventDefault();
       event.stopImmediatePropagation();
+      if (!window.shuobaCloudUser) {
+        if (typeof openAuth === 'function') openAuth();
+        return showCloudToast('登录后才能发送好友申请');
+      }
+      const nickname = (byId('publicProfileTitle')?.textContent || '').replace(/的主页$/, '');
+      const target = window.shuobaCloudProfiles.find(item => item.nickname === nickname);
+      if (!target || target.id === window.shuobaCloudUser.id) return;
       const { error } = await cloud.from('friend_requests').insert({ sender_id: window.shuobaCloudUser.id, receiver_id: target.id });
       if (error) return showCloudToast(friendlyError(error));
       friendButton.disabled = true;
@@ -409,6 +437,7 @@
 
   prepareAuthForm();
   ensureNicknameEditor();
+  clearLegacyDemoLogin();
   cloud.auth.onAuthStateChange(() => setTimeout(refreshSession, 0));
   refreshSession().catch(error => showCloudToast(`共享数据连接失败：${friendlyError(error)}`));
 })();
