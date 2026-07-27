@@ -191,6 +191,12 @@
     button.id = 'changeNickname';
     button.textContent = '修改昵称';
     avatarButton.insertAdjacentElement('beforebegin', button);
+    const logoutButton = document.createElement('button');
+    logoutButton.type = 'button';
+    logoutButton.className = 'btn small';
+    logoutButton.id = 'logoutAccount';
+    logoutButton.textContent = '退出登录';
+    avatarButton.insertAdjacentElement('afterend', logoutButton);
   }
 
   async function loadProfiles() {
@@ -374,6 +380,23 @@
   }, true);
 
   document.addEventListener('click', async event => {
+    const logoutButton = event.target.closest('#logoutAccount');
+    if (logoutButton) {
+      event.preventDefault();
+      localStorage.removeItem(localCurrentKey);
+      localStorage.removeItem('shuoba-session');
+      localStorage.removeItem('shuoba-authenticated');
+      localStorage.removeItem('shuoba-nickname');
+      localStorage.removeItem('shuoba-avatar-text');
+      window.shuobaLocalUser = null;
+      window.shuobaCloudUser = null;
+      isAuthenticated = false;
+      if (typeof setAuthUI === 'function') setAuthUI();
+      if (typeof switchSection === 'function') switchSection('all');
+      showCloudToast('已退出登录，可以注册或登录其他内测账号');
+      return;
+    }
+
     const nicknameButton = event.target.closest('#changeNickname');
     if (nicknameButton) {
       event.preventDefault();
