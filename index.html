@@ -721,7 +721,6 @@
       })));
       document.querySelectorAll('.comment-input').forEach(input=>{input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,180)+'px';});input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();input.closest('.comment-box').querySelector('.submit-comment').click();}});});
       document.querySelectorAll('[data-profile-author]').forEach(author=>author.addEventListener('click',()=>openPublicProfile(author.dataset.profileAuthor)));
-      document.querySelectorAll('[data-tag-search]').forEach(btn=>btn.addEventListener('click',()=>openSearchPage(btn.dataset.tagSearch)));
       if(window.lucide) lucide.createIcons();
     }
     function switchSection(section) {
@@ -848,6 +847,7 @@
     $('subCategory').addEventListener('change',()=>{const major=$('majorCategory').value,group=$('subCategory').value;if(!major||!group){$('leafCategory').disabled=true;$('leafCategory').innerHTML='<option value="">请先选择领域类型</option>';return;}$('leafCategory').disabled=false;$('leafCategory').innerHTML='<option value="">请选择具体分类</option>'+categories[major][group].map(s=>`<option value="${s}">${s}</option>`).join('');$('leafCategory').value=categories[major][group][0];});
     $('postTitle').addEventListener('input',()=>{$('titleCount').textContent=$('postTitle').value.length;}); $('postContent').addEventListener('input',()=>{$('contentCount').textContent=$('postContent').value.length;});
     $('searchBtn').addEventListener('click',()=>{$('searchPopover').classList.add('hidden');openSearchPage($('searchInput').value.trim());}); $('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter'){$('searchPopover').classList.add('hidden');openSearchPage($('searchInput').value.trim());}});$('searchInput').addEventListener('focus',()=>$('searchPopover').classList.remove('hidden'));document.querySelectorAll('[data-hot]').forEach(btn=>btn.addEventListener('click',()=>{$('searchPopover').classList.add('hidden');openSearchPage(btn.dataset.hot);}));document.addEventListener('click',e=>{if(!e.target.closest('.search'))$('searchPopover').classList.add('hidden');});
+    document.addEventListener('click',e=>{const tag=e.target.closest('[data-tag-search]');if(!tag)return;e.preventDefault();openSearchPage(tag.dataset.tagSearch);});
     document.addEventListener('click',e=>{if(!e.target.closest('.share-wrap'))document.querySelectorAll('.share-menu').forEach(menu=>menu.classList.add('hidden'));});
     document.querySelectorAll('.feed-tab').forEach(btn=>btn.addEventListener('click',()=>{currentSort=btn.dataset.sort;document.querySelectorAll('.feed-tab').forEach(x=>x.classList.toggle('active',x===btn));renderFeed();}));
     $('saveDraft').addEventListener('click',()=>{localStorage.setItem('shuoba-draft',JSON.stringify({type:publishType,title:$('postTitle').value,content:$('postContent').value,major:$('majorCategory').value,sub:$('subCategory').value}));showToast('草稿已保存在本机');});
