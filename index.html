@@ -902,7 +902,7 @@
         const personPosts=posts.filter(p=>p.author===author),simulated=personPosts.some(p=>p.role?.includes('内测模拟用户'));
         const friendState=JSON.parse(localStorage.getItem('shuoba-friend-state')||'{}'),messageState=JSON.parse(localStorage.getItem('shuoba-message-state')||'{}');
         const state=friendState[author]||'none',sent=Boolean(messageState[author]),isFollowed=followedUsers.includes(author);
-        const seed=[...author].reduce((sum,char)=>sum+char.charCodeAt(0),0),following=12+seed%86,fans=38+seed%1900,cadence=creatorCadence[author]||'不定期更新';
+        const seed=[...author].reduce((sum,char)=>sum+char.charCodeAt(0),0),cloudProfile=(window.shuobaCloudProfiles||[]).find(item=>item.nickname===author),cloudStats=(window.shuobaCloudFollowStats||{})[cloudProfile?.id],following=cloudStats?.following??(12+seed%86),fans=cloudStats?.followers??(38+seed%1900),cadence=cloudProfile?'内测用户':(creatorCadence[author]||'不定期更新');
         const avatarText=personPosts[0]?.avatar||author.slice(0,1),avatarColor=personPosts[0]?.color||'#68736e';
         const coverPalette=['#dce9e6','#f0e5d6','#e7dfe8','#e5e9d8','#e9dfdc'],cover=author==='周知行'?profileCover:coverPalette[seed%coverPalette.length];
         const ownFollowing=author==='周知行'&&hideFollowing,ownFans=author==='周知行'&&hideFans;
@@ -1042,7 +1042,7 @@
     function personRows(items){return items.map(p=>`<div class="person-row"><div class="avatar" style="background:${p.color}">${p.avatar}</div><div><strong>${p.name}</strong><span>${p.detail}</span></div><button class="btn small">查看主页</button></div>`).join('');}
     function renderProfile(tab='posts'){
       document.querySelectorAll('[data-profile-tab]').forEach(btn=>btn.classList.toggle('active',btn.dataset.profileTab===tab));
-      const mine=posts.filter(p=>p.owner||p.author==='周知行');$('myPostCount').textContent=mine.length;
+      const mine=posts.filter(p=>p.owner);$('myPostCount').textContent=mine.length;
       if(tab==='posts'){$('profileListTitle').textContent='我的公开发布';$('profileListContent').innerHTML=mine.length?mine.map(p=>`<div class="person-row"><div class="avatar" style="background:${p.color}">${p.avatar}</div><div><strong>${p.title}</strong><span>${p.type==='share'?'知识分享':p.type==='complaint'?'一吐为快':'感激记录'} · ${p.time} · ${p.likes} 人认可</span></div><div class="person-actions"><button class="btn small" data-my-post-view="${p.id}">查看</button>${p.owner?`<button class="btn small danger" data-my-post-delete="${p.id}" aria-label="删除这篇文章"><i data-lucide="trash-2"></i>删除</button>`:''}</div></div>`).join(''):'<div class="empty">还没有公开发布，写下的第一篇会保存在这里</div>';document.querySelectorAll('[data-my-post-view]').forEach(btn=>btn.addEventListener('click',()=>openArticlePage(btn.dataset.myPostView)));document.querySelectorAll('[data-my-post-delete]').forEach(btn=>btn.addEventListener('click',()=>{const id=btn.dataset.myPostDelete,post=posts.find(item=>String(item.id)===id);if(!post||!post.owner)return;if(!window.confirm(`确定删除《${post.title}》吗？删除后无法恢复。`))return;const index=posts.findIndex(item=>String(item.id)===id);if(index>=0)posts.splice(index,1);const saved=storedUserPosts.filter(item=>String(item.id)!==id);storedUserPosts.splice(0,storedUserPosts.length,...saved);localStorage.setItem('shuoba-user-posts',JSON.stringify(storedUserPosts));savedPosts=savedPosts.filter(item=>item!==id);localStorage.setItem('shuoba-saved-posts',JSON.stringify(savedPosts));renderProfile('posts');showToast('文章已删除');}));if(window.lucide)lucide.createIcons();}
       if(tab==='following'){$('profileListTitle').textContent='我关注的人';$('profileListContent').innerHTML=personRows(followingPeople);}
       if(tab==='fans'){$('profileListTitle').textContent='关注我的人';$('profileListContent').innerHTML=personRows(fanPeople);}
@@ -1204,6 +1204,6 @@
     const feedObserver=new IntersectionObserver(entries=>{if(entries[0].isIntersecting&&!$('feedLoader').classList.contains('hidden')){feedVisibleCount+=6;renderFeed();}},{rootMargin:'240px'});feedObserver.observe($('feedLoader'));
     if(localStorage.getItem('shuoba-theme')==='dark')document.body.classList.add('dark');setAuthUI();initCategories();renderCreators();renderFeed();if(window.lucide)lucide.createIcons();const directArticleId=new URLSearchParams(location.search).get('article');if(directArticleId){document.body.classList.add('article-page');openArticle(directArticleId);document.querySelector('[data-read-mode="full"]')?.click();document.title=`${$('articleTitle').textContent} · 说吧`;}else if(localStorage.getItem('shuoba-onboarding-v4-seen')!=='true'){$('onboardingModal').classList.remove('hidden');document.body.style.overflow='hidden';renderOnboarding();}
   </script>
-  <script src="supabase-integration.js?v=43"></script>
+  <script src="supabase-integration.js?v=48"></script>
 </body>
 </html>

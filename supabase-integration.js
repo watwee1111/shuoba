@@ -95,6 +95,17 @@
             return { data: { user: data.user, session: data }, error: null };
           } catch (error) { return { data: null, error }; }
         },
+        signOut: async () => {
+          try {
+            if (session?.access_token) {
+              await request('/auth/v1/logout', { method: 'POST' });
+            }
+          } catch (error) {
+            // 即使网络中断，也必须清除本机登录状态。
+          }
+          saveSession(null);
+          return { error: null };
+        },
         onAuthStateChange: callback => { listeners.push(callback); return { data: { subscription: { unsubscribe() {} } } }; }
       }
     };
@@ -167,7 +178,6 @@
   }
 
   function clearLegacyDemoLogin() {
-    if (restoreLocalSession()) return;
     window.shuobaCloudUser = null;
     window.shuobaLocalUser = null;
     isAuthenticated = false;
@@ -203,6 +213,15 @@
     const { data, error } = await cloud.from('profiles').select('id,nickname,avatar_url,bio,is_anonymous,show_following,show_followers');
     if (error) throw error;
     window.shuobaCloudProfiles = data || [];
+    const { data: follows, error: followsError } = await cloud.from('follows').select('follower_id,following_id');
+    if (followsError) throw followsError;
+    window.shuobaCloudFollowStats = {};
+    (follows || []).forEach(item => {
+      const follower = window.shuobaCloudFollowStats[item.follower_id] ||= { following: 0, followers: 0 };
+      const following = window.shuobaCloudFollowStats[item.following_id] ||= { following: 0, followers: 0 };
+      follower.following += 1;
+      following.followers += 1;
+    });
     return window.shuobaCloudProfiles;
   }
 
@@ -297,7 +316,7 @@
       password.closest('.field').insertAdjacentElement('afterend', confirmField);
     }
     const note = document.querySelector('.rule-note');
-    if (note) note.textContent = '首次使用请重新注册内测账号。密码经过摘要处理后保存在当前设备，请妥善记住账号名和密码。';
+    if (note) note.textContent = '账号和文章会同步到所有内测设备。请记住账号名和密码；昵称不可与其他用户重复。';
     document.querySelector('.auth-divider')?.classList.add('hidden');
     document.querySelector('.social-auth')?.classList.add('hidden');
     document.querySelectorAll('[data-auth-tab]').forEach(button => button.addEventListener('click', () => {
@@ -316,24 +335,26 @@
       if (!/^[A-Za-z0-9_-]{4,20}$/.test(username)) return showCloudToast('账号名需要4至20位，只能使用字母、数字、下划线或短横线');
       if (password.length < 6) return showCloudToast('密码至少需要6位');
       try {
-        const accounts = readLocalAccounts();
+        const email = `${username.toLowerCase()}@accounts.shuoba.app`;
         if (authMode === 'register') {
           if (nickname.length < 2 || nickname.length > 12) return showCloudToast('昵称需要2至12个字');
           if (password !== confirmPassword) return showCloudToast('两次输入的密码不一致');
-          if (accounts.some(item => item.username.toLowerCase() === username.toLowerCase())) return showCloudToast('这个账号名已经注册，请直接登录');
-          if (accounts.some(item => item.nickname.toLowerCase() === nickname.toLowerCase())) return showCloudToast('这个昵称已经有人使用，请换一个名字');
-          const salt = crypto.randomUUID();
-          const account = { username, nickname, salt, passwordHash: await passwordDigest(password, salt), createdAt: new Date().toISOString() };
-          accounts.push(account);
-          localStorage.setItem(localAccountsKey, JSON.stringify(accounts));
-          setLocalIdentity(account);
+          const { data: existing, error: nicknameError } = await cloud.from('profiles').select('id').ilike('nickname', nickname).limit(1);
+          if (nicknameError) throw nicknameError;
+          if (existing?.length) return showCloudToast('这个昵称已经有人使用，请换一个名字');
+          const { data, error } = await cloud.auth.signUp({
+            email,
+            password,
+            options: { data: { nickname, username } }
+          });
+          if (error) throw error;
+          if (!data?.session) throw new Error('账号已建立，但自动登录未开启，请联系内测管理员检查邮箱确认设置');
         } else {
-          const account = accounts.find(item => item.username.toLowerCase() === username.toLowerCase());
-          if (!account) return showCloudToast('没有找到这个账号，请先注册');
-          const passwordHash = await passwordDigest(password, account.salt);
-          if (passwordHash !== account.passwordHash) return showCloudToast('账号名或密码不正确');
-          setLocalIdentity(account);
+          const { data, error } = await cloud.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          if (!data?.session) throw new Error('登录没有完成，请稍后重试');
         }
+        await refreshSession();
         if (typeof closeAuth === 'function') closeAuth();
         showCloudToast(authMode === 'register' ? '注册成功，欢迎来到说吧' : '登录成功');
       } catch (error) {
@@ -383,14 +404,15 @@
     const logoutButton = event.target.closest('#logoutAccount');
     if (logoutButton) {
       event.preventDefault();
+      await cloud.auth.signOut();
       localStorage.removeItem(localCurrentKey);
       localStorage.removeItem('shuoba-session');
       localStorage.removeItem('shuoba-authenticated');
       localStorage.removeItem('shuoba-nickname');
       localStorage.removeItem('shuoba-avatar-text');
-      window.shuobaLocalUser = null;
       window.shuobaCloudUser = null;
       isAuthenticated = false;
+      if (byId('authEntry')) byId('authEntry').textContent = '登录 / 注册';
       if (typeof setAuthUI === 'function') setAuthUI();
       if (typeof switchSection === 'function') switchSection('all');
       showCloudToast('已退出登录，可以注册或登录其他内测账号');
