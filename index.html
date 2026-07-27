@@ -646,6 +646,7 @@
   <div class="modal-backdrop hidden" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle"><div class="modal onboarding-modal"><div class="modal-body"><div class="onboarding-step"><div class="step-icon"><i id="onboardingIcon" data-lucide="library-big"></i></div><h2 id="onboardingTitle"></h2><p id="onboardingText"></p><div class="onboarding-progress" id="onboardingProgress"></div></div></div><div class="modal-foot"><button class="btn" id="skipOnboarding">跳过介绍</button><button class="btn primary" id="nextOnboarding">下一页</button></div></div></div>
   <div class="toast hidden" id="toast" aria-live="polite"></div>
   <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const categories = {
       '运动': {
@@ -1203,5 +1204,6 @@
     const feedObserver=new IntersectionObserver(entries=>{if(entries[0].isIntersecting&&!$('feedLoader').classList.contains('hidden')){feedVisibleCount+=6;renderFeed();}},{rootMargin:'240px'});feedObserver.observe($('feedLoader'));
     if(localStorage.getItem('shuoba-theme')==='dark')document.body.classList.add('dark');setAuthUI();initCategories();renderCreators();renderFeed();if(window.lucide)lucide.createIcons();const directArticleId=new URLSearchParams(location.search).get('article');if(directArticleId){document.body.classList.add('article-page');openArticle(directArticleId);document.querySelector('[data-read-mode="full"]')?.click();document.title=`${$('articleTitle').textContent} · 说吧`;}else if(localStorage.getItem('shuoba-onboarding-v4-seen')!=='true'){$('onboardingModal').classList.remove('hidden');document.body.style.overflow='hidden';renderOnboarding();}
   </script>
+  <script src="supabase-integration.js"></script>
 </body>
 </html>
