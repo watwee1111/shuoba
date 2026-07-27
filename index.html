@@ -461,41 +461,85 @@
       .metric-grid { grid-template-columns: 1fr 1fr; }
       .analytics-grid { grid-template-columns: 1fr; }
     }
+    body { background:#f7f8f8; }
+    body:not(.dark) .topbar,body:not(.dark) .welcome,body:not(.dark) .post { background:#fff; }
+    .brand-mark { background:#9f3035; border-radius:4px; box-shadow:none; animation:none !important; }
+    .brand-mark svg { width:20px; height:20px; stroke-width:1.8; }
+    .brand span { font-weight:400; }
+    .btn,.icon-btn,.post,.welcome,.search input { box-shadow:none !important; }
+    .btn.primary { background:#9f3035; border-color:#9f3035; }
+    .btn.primary:hover { background:#85272c; border-color:#85272c; transform:none; }
+    .search input { border:1px solid #dfe3e2; border-radius:6px; background:#fff; }
+    .search-popover { border:1px solid #dfe3e2; border-radius:6px; box-shadow:0 8px 24px rgba(35,42,39,.08); }
+    .nav-btn { position:relative; border-radius:0; background:transparent !important; transition:color .18s ease; }
+    .nav-btn:hover,.nav-btn.active { color:var(--ink); }
+    .nav-btn.active::before { content:""; position:absolute; left:0; top:9px; bottom:9px; width:2px; background:#9f3035; }
+    .nav-btn[data-section="share"].active::before { background:#82aebe; }
+    .nav-btn[data-section="complaint"].active::before { background:#cf936b; }
+    .nav-btn[data-section="self"].active::before { background:#a897bd; }
+    .nav-btn.has-new::after { content:""; width:5px; height:5px; margin-left:auto; border-radius:50%; background:#b75b60; opacity:.65; }
+    .category .subcats,.leafcats { transition:opacity .2s ease; }
+    .welcome { padding:28px; border:1px solid var(--line); border-radius:7px; }
+    .welcome h1 { font-size:28px; letter-spacing:0; }
+    .welcome p { max-width:680px; margin-top:8px; font-size:14px; line-height:1.75; }
+    .composer-row { grid-template-columns:repeat(2,minmax(0,180px)); }
+    .composer-row button { justify-content:flex-start; background:#fff; }
+    .debate-demo { border-color:#e2e5e4; background:#fafafa; }
+    .phrase-rotator { min-height:22px; margin-top:14px; color:var(--muted); font-size:12px; transition:opacity .35s ease; }
+    .hot-topic-bar { display:flex; gap:7px; flex-wrap:wrap; margin:13px 0; }
+    .hot-topic-bar button { padding:7px 10px; border:1px solid #dfe3e2; border-radius:4px; color:var(--muted); background:transparent; }
+    .hot-topic-bar button:hover { color:var(--ink); background:#f1f3f2; }
+    .feed-tab.active::after { height:2px; background:#9f3035; }
+    .post { border-radius:7px; box-shadow:0 2px 12px rgba(35,42,39,.035) !important; }
+    .post:hover { border-color:#d5dad8; }
+    .field-tag { border-color:#dfe3e2 !important; color:#656d69 !important; background:transparent !important; }
+    .feed-guide { padding:20px 22px; border:1px solid #e1e4e3; border-radius:7px; background:#fafbfa; }
+    .feed-guide strong { display:block; margin-bottom:5px; font-size:15px; }
+    .feed-guide p { margin:0 0 12px; color:var(--muted); font-size:12px; }
+    .feed-loader { padding:20px; color:var(--muted); text-align:center; font-size:12px; }
+    .view-fade { animation:softFade .22s ease both; }
+    @keyframes softFade { from { opacity:0; } to { opacity:1; } }
+    body.dark { background:#161918; }
+    body.dark .welcome,body.dark .post,body.dark .feed-guide { background:#202422; border-color:#363c39; }
+    body.dark .hot-topic-bar button,body.dark .search input { border-color:#3b423f; background:#202422; }
+    @media(max-width:760px){.welcome h1{font-size:21px}.phrase-rotator{display:none}.composer-row{display:grid;grid-template-columns:1fr 1fr}}
   </style>
 </head>
 <body>
   <header class="topbar">
-    <div class="brand"><div class="brand-mark">说</div><div><strong>说吧</strong><span>摸鱼间隙，收获一点新知</span></div></div>
-    <div class="search"><input id="searchInput" type="search" placeholder="搜索文章、问题、领域或创作者" aria-label="全局搜索"><button id="searchBtn" aria-label="搜索"><i data-lucide="search"></i></button><div class="search-popover hidden" id="searchPopover"><strong>此刻，大家正在认真寻找答案</strong><p>从一个真实问题出发，也许下一篇内容就能帮你少走一段弯路。</p><div class="hot-searches"><button data-hot="如何建立有效学习计划">大一如何真正学会自律</button><button data-hot="大学生力量训练">零基础力量训练</button><button data-hot="C语言指针">终于有人讲懂C语言指针</button><button data-hot="职业选择">第一份工作怎么选</button></div></div></div>
-    <div class="top-actions"><button class="icon-btn" id="themeToggle" aria-label="切换夜间模式"><i data-lucide="moon"></i></button><button class="icon-btn" id="analyticsEntry" aria-label="运营数据"><i data-lucide="chart-no-axes-combined"></i></button><button class="btn primary" id="topPublish"><i data-lucide="square-pen"></i>发布</button><button class="btn" id="authEntry">登录 / 注册</button><button class="avatar hidden" id="profileAvatar" aria-label="进入个人主页">知行</button><input class="hidden" id="avatarInput" type="file" accept="image/png,image/jpeg,image/webp"></div>
+    <div class="brand"><div class="brand-mark"><i data-lucide="message-square"></i></div><div><strong>说吧</strong><span>各抒所见，亦可一吐为快</span></div></div>
+    <div class="search"><input id="searchInput" type="search" placeholder="搜索见闻、观点、话题" aria-label="全局搜索"><button id="searchBtn" aria-label="搜索"><i data-lucide="search"></i></button><div class="search-popover hidden" id="searchPopover"><strong>热门搜索</strong><div class="hot-searches"><button data-hot="怎么调整学习状态">怎么调整学习状态</button><button data-hot="如何缓解内耗">如何缓解内耗</button><button data-hot="普通人实用经验">普通人实用经验</button></div></div></div>
+    <div class="top-actions"><button class="icon-btn" id="themeToggle" aria-label="切换夜间模式"><i data-lucide="moon"></i></button><button class="icon-btn" id="analyticsEntry" aria-label="运营数据"><i data-lucide="chart-no-axes-combined"></i></button><button class="btn primary" id="topPublish"><i data-lucide="square-pen"></i>提笔言说</button><button class="btn" id="authEntry">登录 / 注册</button><button class="avatar hidden" id="profileAvatar" aria-label="随行 · 个人中心">知行</button><input class="hidden" id="avatarInput" type="file" accept="image/png,image/jpeg,image/webp"></div>
   </header>
   <div class="app">
     <aside class="sidebar">
       <nav class="primary-nav" aria-label="主要板块">
         <button class="nav-btn active" data-section="all"><i data-lucide="house"></i>综合首页</button>
-        <button class="nav-btn" data-section="share"><i data-lucide="book-open"></i>知识分享</button>
-        <button class="nav-btn" data-section="gratitude"><i data-lucide="heart-handshake"></i>感激专区</button>
-        <button class="nav-btn" data-section="complaint"><i data-lucide="message-circle-warning"></i>吐槽专区</button>
-        <button class="nav-btn" data-section="self"><i data-lucide="notebook-pen"></i>说给自己</button>
+        <button class="nav-btn has-new" data-section="share"><i data-lucide="book-open"></i>见闻共享</button>
+        <button class="nav-btn" data-section="gratitude"><i data-lucide="heart-handshake"></i>感念回响</button>
+        <button class="nav-btn has-new" data-section="complaint"><i data-lucide="message-circle-warning"></i>一吐为快</button>
+        <button class="nav-btn" data-section="self"><i data-lucide="notebook-pen"></i>私语自留</button>
       </nav>
       <div class="side-heading"><span>分类浏览</span><i data-lucide="chevrons-up-down"></i></div>
       <div class="category-list" id="categoryList"></div>
     </aside>
     <main class="main">
       <section class="welcome">
-        <div class="welcome-top"><div><h1 id="sectionTitle">今天想了解什么？</h1><p id="sectionDesc">从真实经验和专业见解中获得答案，也把你的知识留给后来的人。</p></div><button class="btn primary" id="mainPublish"><i data-lucide="plus"></i>发起分享</button></div>
+        <div class="welcome-top"><div><h1 id="sectionTitle">此刻，你想说些什么？</h1><p id="sectionDesc">在这里，经验可以被记录，情绪能够被安放，观点允许被讨论。</p></div><button class="hidden" id="mainPublish" style="display:none">发布</button></div>
         <div class="composer-row">
-          <button data-compose="share"><i data-lucide="file-text"></i>写一篇知识分享</button>
-          <button class="gratitude" data-compose="gratitude"><i data-lucide="sparkles"></i>记录一份感激</button>
+          <button data-compose="share"><i data-lucide="file-text"></i>写下见闻</button>
+          <button data-compose="complaint"><i data-lucide="message-circle"></i>随心倾诉</button>
         </div>
-        <div class="debate-demo"><div><strong>内测体验：多人文字辩论空间</strong><span>无需制造争吵，使用示例话题直接体验轮流发言、严格拦截与分歧总结。</span></div><button class="btn" id="demoDebate"><i data-lucide="message-square-more"></i>进入体验</button></div>
+        <div class="debate-demo"><div><strong>多人文字辩论空间 · 理性交换想法</strong><span>轮流表达，复述观点，用事实与逻辑讨论分歧。</span></div><button class="btn" id="demoDebate"><i data-lucide="message-square-more"></i>进入体验</button></div>
+        <div class="phrase-rotator" id="phraseRotator">别人走过的路，或许能解开你的困惑</div>
       </section>
       <section class="gratitude-guide hidden" id="gratitudeGuide"><div class="gratitude-guide-head"><i data-lucide="heart-handshake"></i><div><strong>有些好，不大，但会被记很久</strong><span>不用写得漂亮，想起谁，就把那件小事说出来。</span></div></div><div class="gratitude-prompts"><div class="gratitude-prompt">今天有没有谁，顺手替你接住了一点狼狈？</div><div class="gratitude-prompt">哪句普通的话，让你突然觉得“还好有人懂”？</div><div class="gratitude-prompt">也可以谢谢那个撑过一段难熬日子的自己。</div></div></section>
       <section class="complaint-guide hidden" id="complaintGuide"><h3>可以吐槽，也可以一起想想办法</h3><p>欢迎说出生活里的委屈、烦恼和不解。真实情绪会被接住，但禁止挂人、泄露隐私、人身攻击、网暴和恶意引战。讨论尽量对事不对人。</p><div class="complaint-rules"><span>允许真实情绪</span><span>支持匿名发布</span><span>共情安慰</span><span>理性讨论</span><span>拒绝挂人与网暴</span></div><button class="btn primary" style="margin-top:12px" data-compose="complaint"><i data-lucide="square-pen"></i>匿名吐槽一下</button></section>
-      <div class="hot-searches" style="margin:12px 0"><button data-hot="摸鱼学点东西">#摸鱼学点东西</button><button data-hot="三角洲">#三角洲小技巧</button><button data-hot="运动">#运动不硬撑</button><button data-hot="高考">#高考后的感悟</button></div>
+      <div class="hot-topic-bar"><button data-hot="普通人实用经验">#普通人实用经验</button><button data-hot="如何缓解内耗">#如何缓解内耗</button><button data-hot="职场生活">#职场生活</button><button data-hot="暗恋">#暗恋心事</button></div>
       <section class="search-page hidden" id="searchPage"><div class="search-page-head"><h2>搜索结果</h2><span id="searchResultLabel">输入问题或关键词</span></div><div class="search-recommend"><div class="search-recommend-head"><h3>猜你喜欢</h3><span>根据你的阅读偏好与社区热度推荐</span></div><div class="recommend-list" id="searchRecommendList"></div></div></section>
-      <div class="feed-tabs"><button class="feed-tab active" data-sort="recommend">为你推荐</button><button class="feed-tab" data-sort="latest">最新发布</button><button class="feed-tab" data-sort="following">我的关注</button></div>
+      <div class="feed-tabs"><button class="feed-tab active" data-sort="recommend">为你推荐</button><button class="feed-tab" data-sort="latest">最新言说</button><button class="feed-tab" data-sort="following">我的关注</button></div>
       <section class="feed" id="feed"></section>
+      <div class="feed-loader" id="feedLoader">正在加载更多言说</div>
       <section class="self-space hidden" id="selfSpace">
         <aside class="note-list"><div class="note-list-head"><strong>我的记事本</strong><button class="icon-btn" id="newNote" aria-label="新建笔记"><i data-lucide="file-plus-2"></i></button></div><div id="noteItems"></div></aside>
         <div class="note-editor"><input class="note-title" id="noteTitle" maxlength="80" placeholder="给这页写一个题目"><textarea class="note-content" id="noteContent" placeholder="只写给自己。可以记录想法、计划、复盘或暂时不想公开的话……"></textarea><div class="drawing-tools"><strong>随手画</strong><input id="penColor" type="color" value="#176b4d" aria-label="画笔颜色"><input id="penSize" type="range" min="1" max="16" value="3" aria-label="画笔粗细"><button class="btn small" id="eraserBtn"><i data-lucide="eraser"></i>橡皮</button><button class="btn small" id="clearCanvas"><i data-lucide="trash-2"></i>清空画布</button><button class="btn small primary" id="saveNote"><i data-lucide="save"></i>保存本页</button></div><canvas class="draw-canvas" id="drawCanvas"></canvas><div class="privacy-note"><i data-lucide="lock-keyhole"></i>仅保存在当前设备，不进入公开内容流，其他用户无法查看。</div></div>
@@ -550,7 +594,7 @@
     <div class="modal auth-modal"><div class="modal-head"><h2 id="authTitle">登录说吧</h2><button class="icon-btn" id="closeAuth" aria-label="关闭"><i data-lucide="x"></i></button></div><div class="modal-body"><div class="auth-tabs"><button class="active" data-auth-tab="login">已有账号登录</button><button data-auth-tab="register">新用户注册</button></div><form id="authForm"><div class="field"><label for="phoneInput">手机号</label><input id="phoneInput" inputmode="numeric" maxlength="11" placeholder="请输入11位手机号" required></div><div class="field" style="margin-top:12px"><label for="codeInput">验证码</label><div class="code-row"><input id="codeInput" inputmode="numeric" maxlength="6" placeholder="6位验证码" required><button class="btn" type="button" id="sendCode">获取验证码</button></div></div><div class="register-profile hidden" id="registerProfile"><strong>先取一个舒服的名字</strong><div class="name-suggestions"><button type="button" data-name="听风写信">听风写信</button><button type="button" data-name="半页晚灯">半页晚灯</button><button type="button" data-name="问题不大同学">问题不大同学</button><button type="button" data-name="知识路过一下">知识路过一下</button></div><div class="field"><label for="nicknameInput">也可以自己命名</label><input id="nicknameInput" maxlength="12" placeholder="2至12个字，不含联系方式或冒充词"></div><strong style="margin-top:12px">选择平台风格头像</strong><div class="avatar-presets"><button type="button" class="avatar-choice active" data-avatar="问" data-color="#176b4d" style="background:#176b4d" aria-label="求知问号头像">问</button><button type="button" class="avatar-choice" data-avatar="灯" data-color="#a66b09" style="background:#a66b09" aria-label="夜读灯光头像">灯</button><button type="button" class="avatar-choice" data-avatar="思" data-color="#326b83" style="background:#326b83" aria-label="理性思考头像">思</button><button type="button" class="avatar-choice" data-avatar="哈" data-color="#c7533f" style="background:#c7533f" aria-label="轻松幽默头像">哈</button></div><div class="review-hint">昵称会拦截辱骂、引战、联系方式和冒充官方。自定义图片头像注册后可提交审核，审核通过前继续显示当前预设头像。</div></div><button class="btn primary" style="width:100%;margin-top:16px" type="submit" id="authSubmit">登录</button></form><div class="auth-divider">或使用快捷方式</div><div class="social-auth"><button class="btn" id="wechatAuth"><i data-lucide="message-circle"></i>微信注册/登录</button><button class="btn" id="qqAuth"><i data-lucide="circle-user-round"></i>QQ注册/登录</button></div><div class="rule-note">注册即表示同意社区规范。手机号仅用于账号验证，原型不会上传真实号码。</div></div></div>
   </div>
   <div class="modal-backdrop hidden" id="publicProfileModal" role="dialog" aria-modal="true" aria-labelledby="publicProfileTitle"><div class="modal auth-modal"><div class="modal-head"><h2 id="publicProfileTitle">用户主页</h2><button class="icon-btn" id="closePublicProfile" aria-label="关闭"><i data-lucide="x"></i></button></div><div id="publicProfileContent"></div></div></div>
-  <div class="modal-backdrop hidden" id="articleModal" role="dialog" aria-modal="true" aria-labelledby="articleTitle"><div class="modal"><div class="modal-head"><a class="article-back" id="closeArticle" href="?v=27" aria-label="返回说吧综合首页"><span class="brand-mark">说</span><span><strong>说吧</strong><small>返回综合首页</small></span></a><h2 id="articleTitle">文章详情</h2></div><article class="article-detail" id="articleDetail"></article></div></div>
+  <div class="modal-backdrop hidden" id="articleModal" role="dialog" aria-modal="true" aria-labelledby="articleTitle"><div class="modal"><div class="modal-head"><a class="article-back" id="closeArticle" href="?v=28" aria-label="返回说吧综合首页"><span class="brand-mark">说</span><span><strong>说吧</strong><small>返回综合首页</small></span></a><h2 id="articleTitle">文章详情</h2></div><article class="article-detail" id="articleDetail"></article></div></div>
   <div class="modal-backdrop hidden" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle"><div class="modal onboarding-modal"><div class="modal-body"><div class="onboarding-step"><div class="step-icon"><i id="onboardingIcon" data-lucide="library-big"></i></div><h2 id="onboardingTitle"></h2><p id="onboardingText"></p><div class="onboarding-progress" id="onboardingProgress"></div></div></div><div class="modal-foot"><button class="btn" id="skipOnboarding">跳过介绍</button><button class="btn primary" id="nextOnboarding">下一页</button></div></div></div>
   <div class="toast hidden" id="toast" aria-live="polite"></div>
   <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
@@ -652,6 +696,7 @@
     let currentSection = 'all';
     let currentSort = 'recommend';
     let currentCategory = '';
+    let feedVisibleCount = 12;
     let publishType = 'share';
     let publishFormat = 'short';
     let mediaData = null;
@@ -729,7 +774,7 @@
       return `<div class="article-recommendations"><h3>看完这篇，还可以接着看</h3>${related.map(item=>`<button class="article-recommendation" data-article-recommend="${item.id}"><strong>${item.title}</strong><span>${item.category} · ${item.author} · ${item.likes} 人认可</span></button>`).join('')}</div>`;
     }
     function openArticlePage(postId){
-      const url=new URL(location.href);url.search='';url.searchParams.set('article',postId);url.searchParams.set('v','27');window.location.assign(url.toString());
+      const url=new URL(location.href);url.search='';url.searchParams.set('article',postId);url.searchParams.set('v','28');window.location.assign(url.toString());
     }
     function postHtml(p) {
       const tagClass = p.type==='question'?'question':p.type==='gratitude'?'gratitude':p.type==='complaint'?'complaint':'';
@@ -742,7 +787,7 @@
       return `<article class="post" data-post="${p.id}"><div class="post-meta"><div class="author author-link" data-profile-author="${escapeHtml(displayAuthor)}"><div class="avatar" style="background:${displayColor}">${displayAvatar}</div><div class="author-info"><strong>${displayAuthor}</strong><span>${displayRole} · ${p.time}</span></div></div><button type="button" class="field-tag ${tagClass}" data-tag-search="${escapeHtml(p.leaf||p.sub||p.category)}" onclick="openSearchPage(this.dataset.tagSearch)">${tagText} · ${p.leaf||p.sub||p.category}</button></div>${badge?`<span class="gentle-badge"><i data-lucide="sprout"></i>${escapeHtml(badge)}</span>`:''}<div class="post-main-click" data-open-post="${p.id}" title="打开文章"><h2><a class="post-title-button" href="?article=${p.id}&v=25">${p.title}</a></h2><p class="post-body">${p.body}</p></div>${p.image?`<img class="post-image" src="${p.image}" alt="${p.title}" loading="lazy">`:''}${p.note?`<div class="post-note">${p.note}</div>`:''}${p.answer?`<div class="answer-preview"><strong>高赞回答 · ${p.answers} 个回答</strong><p>${p.answer}</p></div>`:''}${p.tags?`<div class="tags">${p.tags.map(t=>`<button type="button" class="field-tag gratitude" data-tag-search="${escapeHtml(t.replace(/^#/,''))}" onclick="openSearchPage(this.dataset.tagSearch)">${t}</button>`).join(' ')}</div>`:''}<div class="post-actions"><button class="action like-btn"><i data-lucide="${p.type==='gratitude'?'heart':'thumbs-up'}"></i><span>${supportLabel} ${p.likes}</span></button><button class="action comment-toggle"><i data-lucide="message-circle"></i><span>${p.comments}</span></button>${p.type==='share'?'<button class="action supplement-toggle"><i data-lucide="list-plus"></i>补充专区</button>':''}<button class="action save-btn ${saved?'liked':''}"><i data-lucide="bookmark"></i><span>${saved?'已收藏':'收藏'}</span></button><div class="share-wrap"><button class="action share-toggle" aria-label="打开分享方式"><i data-lucide="share-2"></i>分享</button><div class="share-menu hidden"><button data-share-platform="wechat"><i data-lucide="messages-square"></i>微信朋友圈</button><button data-share-platform="qq"><i data-lucide="message-circle"></i>QQ</button><button data-share-platform="copy"><i data-lucide="link"></i>复制分享内容</button></div></div></div>${p.type==='share'?`<div class="supplement-box hidden"><strong>补充这篇知识分享</strong><textarea placeholder="补充资料、不同条件下的经验或有依据的修正意见"></textarea><button class="btn small primary submit-supplement">提交补充</button><div class="supplement-list"></div></div>`:''}<div class="comment-box hidden"><strong>${p.type==='complaint'?'回应这份吐槽':'参与理性讨论'}</strong>${p.type==='complaint'?`<select class="comment-atmosphere" aria-label="评论氛围"><option value="共情安慰">共情安慰</option><option value="理性讨论">理性讨论</option></select>`:''}<textarea class="comment-input" rows="2" placeholder="在这里写下观点，Enter发送，Shift+Enter换行"></textarea><div class="comment-submit-row"><button class="btn small ghost submit-comment">发表评论</button></div><div class="mediation hidden"></div><div class="discussion-log">${commentsHtml(p)}</div></div></article>`;
     }
     function openArticle(postId){const p=posts.find(item=>String(item.id)===String(postId));if(!p)return;$('articleTitle').textContent=p.title;$('articleDetail').innerHTML=`<div class="article-detail-meta">${escapeHtml(p.author)} · ${escapeHtml(p.role)} · ${escapeHtml(p.time)}</div><div class="reading-modes"><button class="active" data-read-mode="quick">精简速读版</button><button data-read-mode="full">完整版</button></div><div class="quick-read" id="quickRead"><strong>先用一分钟抓住重点</strong><p>${escapeHtml(p.body)}</p>${p.note?`<p>${escapeHtml(p.note)}</p>`:''}</div><div class="hidden" id="fullRead">${p.image?`<img src="${p.image}" alt="${escapeHtml(p.title)}">`:''}<div class="article-detail-content">${p.detail||`<p>${escapeHtml(p.body)}</p>`}</div></div><div class="continue-reading"><p>看到这里就很好，不必一次读完所有内容。</p><button class="btn" id="randomNextArticle"><i data-lucide="shuffle"></i>再随便看一篇</button> <button class="btn primary" id="articleCompose"><i data-lucide="pen-line"></i>写下我的一点想法</button></div>${articleRecommendations(p)}`;$('articleModal').classList.remove('hidden');document.body.style.overflow='hidden';document.querySelectorAll('[data-read-mode]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-read-mode]').forEach(x=>x.classList.toggle('active',x===btn));$('quickRead').classList.toggle('hidden',btn.dataset.readMode!=='quick');$('fullRead').classList.toggle('hidden',btn.dataset.readMode!=='full');}));$('randomNextArticle').addEventListener('click',()=>{const others=posts.filter(item=>item.type!=='question'&&String(item.id)!==String(postId));openArticle(others[Math.floor(Math.random()*others.length)].id);});$('articleCompose').addEventListener('click',()=>requireAuth(()=>{closeArticle();openPublish('share');}));document.querySelectorAll('[data-article-recommend]').forEach(btn=>btn.addEventListener('click',()=>openArticle(btn.dataset.articleRecommend)));if(window.lucide)lucide.createIcons();}
-    function closeArticle(){if(document.body.classList.contains('article-page')){const home=new URL(location.href);home.search='';home.searchParams.set('v','27');location.assign(home.toString());return;}$('articleModal').classList.add('hidden');document.body.style.overflow='';}
+    function closeArticle(){if(document.body.classList.contains('article-page')){const home=new URL(location.href);home.search='';home.searchParams.set('v','28');location.assign(home.toString());return;}$('articleModal').classList.add('hidden');document.body.style.overflow='';}
     function openPublicProfile(author){
       $('publicProfileTitle').textContent=author==='匿名用户'?'匿名用户主页':`${author}的主页`;
       if(author==='匿名用户'||author==='周知行'&&profilePrivate){$('publicProfileContent').innerHTML='<div class="private-profile-view"><i data-lucide="shield-check"></i><h3>该用户已开启匿名主页</h3><p>个人资料、公开发布、关注、粉丝和生活记录均不可见。</p></div>';}
@@ -793,10 +838,22 @@
       if(query) items=items.filter(p=>(p.title+p.body+p.author+p.category+p.sub+(p.leaf||'')).toLowerCase().includes(query));
       if(currentSort==='latest') items=[...items].reverse();
       if(currentSort==='following') items=items.filter(p=>p.followed);
-      $('feed').innerHTML=items.length?items.map(postHtml).join(''):`<div class="empty"><i data-lucide="search-x"></i><strong>没有找到匹配内容</strong><div>换一个关键词或分类试试</div></div>`;
+      const visibleItems=items.slice(0,feedVisibleCount);
+      const guides=[
+        ['你也拥有值得分享的经历','不必写成教程，一段真实经过也能帮助别人。','写下见闻','share'],
+        ['心里有话无处诉说？','允许情绪存在，也欢迎一起寻找下一步。','随心倾诉','complaint'],
+        ['想和他人交换不同看法？','进入多人文字空间，轮流表达并认真听完。','进入辩论空间','debate']
+      ];
+      const feedParts=[];
+      visibleItems.forEach((item,index)=>{feedParts.push(postHtml(item));if((index+1)%6===0){const g=guides[((index+1)/6-1)%guides.length];feedParts.push(`<aside class="feed-guide"><strong>${g[0]}</strong><p>${g[1]}</p><button class="btn small" data-feed-action="${g[3]}">${g[2]}</button></aside>`);}});
+      const emptyText=query?'没有找到相关内容，不妨换个关键词，或是写下你的想法':'暂时还没有人留下言说，期待你成为第一位';
+      $('feed').innerHTML=items.length?feedParts.join(''):`<div class="empty"><i data-lucide="search-x"></i><strong>${emptyText}</strong></div>`;
+      $('feed').classList.remove('view-fade');requestAnimationFrame(()=>$('feed').classList.add('view-fade'));
+      $('feedLoader').classList.toggle('hidden',items.length<=feedVisibleCount);
       if(!$('searchPage').classList.contains('hidden'))$('searchResultLabel').textContent=query?`找到 ${items.length} 条相关内容`:'输入问题或关键词';
       document.querySelectorAll('.like-btn').forEach(btn=>btn.addEventListener('click',()=>requireAuth(()=>{const liked=btn.classList.toggle('liked');const span=btn.querySelector('span');const number=Number((span.textContent.match(/\d+/)||['0'])[0])+(liked?1:-1);const label=span.textContent.startsWith('鼓励')?'鼓励 ':span.textContent.startsWith('抱抱')?'抱抱 ':'点赞 ';span.textContent=label+number;const post=posts.find(item=>String(item.id)===btn.closest('.post').dataset.post);if(post){preferredCategories[post.category]=Math.max(0,(preferredCategories[post.category]||0)+(liked?1:-1));localStorage.setItem('shuoba-preferred-categories',JSON.stringify(preferredCategories));if(!$('searchPage').classList.contains('hidden'))renderSearchRecommendations();}showToast(liked?'你的认可已送达，创作者会收到一份小小鼓励':'已收回这次认可');})));
       document.querySelectorAll('.save-btn').forEach(btn=>btn.addEventListener('click',()=>requireAuth(()=>{const id=btn.closest('.post').dataset.post;const saved=savedPosts.includes(id);savedPosts=saved?savedPosts.filter(item=>item!==id):[...savedPosts,id];localStorage.setItem('shuoba-saved-posts',JSON.stringify(savedPosts));btn.classList.toggle('liked',!saved);btn.querySelector('span').textContent=saved?'收藏':'已收藏';showToast(saved?'已从收藏中移除':'已安静地收进收藏，想看时再回来');})));
+      document.querySelectorAll('[data-feed-action]').forEach(btn=>btn.addEventListener('click',()=>{const action=btn.dataset.feedAction;if(action==='debate')requireAuth(openDemoDebate);else requireAuth(()=>openPublish(action));}));
       document.querySelectorAll('.post-main-click').forEach(area=>area.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openArticlePage(area.dataset.openPost);}));
       document.querySelectorAll('.post').forEach(card=>card.addEventListener('click',e=>{const control=e.target.closest('button, input, textarea, select, a, .comment-box, .supplement-box');if(control&&!control.classList.contains('post-title-button'))return;openArticlePage(card.dataset.post);}));
       document.querySelectorAll('.supplement-toggle').forEach(btn=>btn.addEventListener('click',()=>btn.closest('.post').querySelector('.supplement-box').classList.toggle('hidden')));
@@ -821,12 +878,12 @@
     function switchSection(section) {
       currentSection=section; currentCategory='';
       document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.section===section));
-      const copy={all:['今天想了解什么？','从真实经验和专业见解中获得答案，也把你的知识留给后来的人。'],complaint:['吐槽专区','允许真实情绪，也欢迎大家一起交流看法和解决思路。'],share:['值得沉淀的知识分享','阅读有依据、有过程、有结论的经验与专业解读。'],question:['提出一个具体问题','公开说明背景和已尝试的方法，让真正懂的人更容易帮助你。'],gratitude:['今天，有没有谁让你心里暖了一下？','可能只是一句话、一顿热饭，或者有人在你狼狈时没有追问。'],self:['说给自己','这里完全私密，可以写下暂时不想公开的文字，也可以随手画。'],profile:['我的主页','查看公开表达和关系，也留意自己今天的身心状态。'],analytics:['运营数据','观察用户增长、内容生产、互动质量和社区安全状态。']}[section];
+      const copy={all:['此刻，你想说些什么？','在这里，经验可以被记录，情绪能够被安放，观点允许被讨论。'],complaint:['一吐为快','允许真实情绪，也欢迎大家一起交流看法和解决思路。'],share:['见闻共享','记录亲历、见闻与能够帮助他人的具体经验。'],question:['提出一个具体问题','公开说明背景和已尝试的方法，让真正懂的人更容易帮助你。'],gratitude:['感念回响','把那些不大却记了很久的好，认真留在这里。'],self:['私语自留','这里完全私密，可以写下暂时不想公开的文字，也可以随手画。'],profile:['个人中心','查看公开表达和关系，也留意自己今天的身心状态。'],analytics:['运营数据','观察用户增长、内容生产、互动质量和社区安全状态。']}[section];
       $('sectionTitle').textContent=copy[0]; $('sectionDesc').textContent=copy[1];
       $('gratitudeGuide').classList.toggle('hidden',section!=='gratitude');
       $('complaintGuide').classList.toggle('hidden',section!=='complaint');
       $('searchPage').classList.add('hidden');
-      const self=section==='self',profile=section==='profile',analytics=section==='analytics'; $('selfSpace').classList.toggle('hidden',!self);$('profilePage').classList.toggle('hidden',!profile);$('analyticsPage').classList.toggle('hidden',!analytics); $('feed').classList.toggle('hidden',self||profile||analytics); document.querySelector('.feed-tabs').classList.toggle('hidden',self||profile||analytics); document.querySelector('.composer-row').classList.toggle('hidden',self||profile||analytics); $('mainPublish').classList.toggle('hidden',self||profile||analytics);
+      const self=section==='self',profile=section==='profile',analytics=section==='analytics'; feedVisibleCount=12;$('selfSpace').classList.toggle('hidden',!self);$('profilePage').classList.toggle('hidden',!profile);$('analyticsPage').classList.toggle('hidden',!analytics); $('feed').classList.toggle('hidden',self||profile||analytics);$('feedLoader').classList.toggle('hidden',self||profile||analytics); document.querySelector('.feed-tabs').classList.toggle('hidden',self||profile||analytics); document.querySelector('.composer-row').classList.toggle('hidden',self||profile||analytics); $('mainPublish').classList.toggle('hidden',self||profile||analytics);
       if(self){renderNotes();prepareCanvas();}else if(profile){renderProfile('posts');prepareMoodCanvas();}else if(analytics){startAnalytics();}else renderFeed();
     }
     function renderAnalytics(){
@@ -946,7 +1003,7 @@
     $('postTitle').addEventListener('input',()=>{$('titleCount').textContent=$('postTitle').value.length;}); $('postContent').addEventListener('input',()=>{$('contentCount').textContent=$('postContent').value.length;});
     $('searchBtn').addEventListener('click',()=>{$('searchPopover').classList.add('hidden');openSearchPage($('searchInput').value.trim());}); $('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter'){$('searchPopover').classList.add('hidden');openSearchPage($('searchInput').value.trim());}});$('searchInput').addEventListener('focus',()=>$('searchPopover').classList.remove('hidden'));document.querySelectorAll('[data-hot]').forEach(btn=>btn.addEventListener('click',()=>{$('searchPopover').classList.add('hidden');openSearchPage(btn.dataset.hot);}));document.addEventListener('click',e=>{if(!e.target.closest('.search'))$('searchPopover').classList.add('hidden');});
     document.addEventListener('click',e=>{if(!e.target.closest('.share-wrap'))document.querySelectorAll('.share-menu').forEach(menu=>menu.classList.add('hidden'));});
-    document.querySelectorAll('.feed-tab').forEach(btn=>btn.addEventListener('click',()=>{currentSort=btn.dataset.sort;document.querySelectorAll('.feed-tab').forEach(x=>x.classList.toggle('active',x===btn));renderFeed();}));
+    document.querySelectorAll('.feed-tab').forEach(btn=>btn.addEventListener('click',()=>{currentSort=btn.dataset.sort;feedVisibleCount=12;document.querySelectorAll('.feed-tab').forEach(x=>x.classList.toggle('active',x===btn));renderFeed();}));
     $('saveDraft').addEventListener('click',()=>{localStorage.setItem('shuoba-draft',JSON.stringify({type:publishType,title:$('postTitle').value,content:$('postContent').value,major:$('majorCategory').value,sub:$('subCategory').value}));showToast('草稿已保存在本机');});
     $('publishForm').addEventListener('submit',e=>{e.preventDefault();const title=$('postTitle').value.trim(),content=$('postContent').value.trim();const error=moderate(title,content,publishType);if(error){$('moderationBox').textContent=error;$('moderationBox').classList.add('show');return;}const major=$('majorCategory').value,sub=$('subCategory').value,leaf=$('leafCategory').value;if(!major||!sub||!leaf)return;const anonymous=$('anonymousToggle').checked||profilePrivate;posts.unshift({id:Date.now(),owner:true,type:publishType,format:publishFormat,badge:'新人首发',category:major,sub,leaf,author:anonymous?'匿名用户':'周知行',role:anonymous?'身份已隐藏':'新晋分享者',avatar:anonymous?'匿':'周',color:anonymous?'#68736e':'#c7533f',time:'刚刚',title:escapeHtml(title),body:escapeHtml(content),image:mediaData?.type==='image'?mediaData.url:undefined,likes:0,comments:0,tags:publishType==='gratitude'?[escapeHtml($('gratitudeTags').value)]:publishType==='complaint'?[escapeHtml($('complaintTags').value)]:undefined});$('publishForm').reset();mediaData=null;$('mediaPreview').classList.add('hidden');$('titleCount').textContent='0';$('contentCount').textContent='0';closePublish();switchSection(publishType);showToast('已发布，并获得一轮新人基础展示；不按分数和粉丝排序');});
     $('imagePick').addEventListener('click',()=>$('mediaInput').click());$('videoPick').addEventListener('click',()=>$('videoInput').click());
@@ -998,6 +1055,8 @@
     document.querySelectorAll('[data-rank]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-rank]').forEach(x=>x.classList.toggle('active',x===btn));renderRanking(btn.dataset.rank);}));
     $('newNote').addEventListener('click',()=>{activeNoteId=null;$('noteTitle').value='';$('noteContent').value='';if(canvasReady)$('drawCanvas').getContext('2d').clearRect(0,0,$('drawCanvas').width,$('drawCanvas').height);showToast('已新建空白私密页');});
     $('saveNote').addEventListener('click',saveCurrentNote);$('eraserBtn').addEventListener('click',()=>{erasing=!erasing;$('eraserBtn').classList.toggle('primary',erasing);showToast(erasing?'已切换为橡皮':'已切换为画笔');});$('clearCanvas').addEventListener('click',()=>{if(canvasReady)$('drawCanvas').getContext('2d').clearRect(0,0,$('drawCanvas').width,$('drawCanvas').height);});
+    const phrases=['别人走过的路，或许能解开你的困惑','不必强行乐观，想法不分高低','认真倾听，自在言说'];let phraseIndex=0;setInterval(()=>{const el=$('phraseRotator');if(!el)return;el.style.opacity='0';setTimeout(()=>{phraseIndex=(phraseIndex+1)%phrases.length;el.textContent=phrases[phraseIndex];el.style.opacity='1';},360);},5200);
+    const feedObserver=new IntersectionObserver(entries=>{if(entries[0].isIntersecting&&!$('feedLoader').classList.contains('hidden')){feedVisibleCount+=6;renderFeed();}},{rootMargin:'240px'});feedObserver.observe($('feedLoader'));
     if(localStorage.getItem('shuoba-theme')==='dark')document.body.classList.add('dark');setAuthUI();initCategories();renderCreators();renderFeed();if(window.lucide)lucide.createIcons();const directArticleId=new URLSearchParams(location.search).get('article');if(directArticleId){document.body.classList.add('article-page');openArticle(directArticleId);document.querySelector('[data-read-mode="full"]')?.click();document.title=`${$('articleTitle').textContent} · 说吧`;}else if(localStorage.getItem('shuoba-onboarding-v4-seen')!=='true'){$('onboardingModal').classList.remove('hidden');document.body.style.overflow='hidden';renderOnboarding();}
   </script>
 </body>
