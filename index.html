@@ -975,7 +975,7 @@
     $('authForm').addEventListener('submit',async e=>{e.preventDefault();const phone=$('phoneInput').value.trim(),code=$('codeInput').value.trim(),nickname=$('nicknameInput').value.trim();if(!/^1\d{10}$/.test(phone)){showToast('请输入正确的11位手机号');return;}if(authMode==='register'){if(nickname.length<2||nickname.length>12){showToast('昵称需要2至12个字');return;}if(/(官方|管理员|客服|站长|微信|QQ|vx|电话|1\d{10}|傻|蠢|垃圾|去死|色情|赌博|仇恨)/i.test(nickname)){showToast('昵称包含冒充、联系方式、攻击或违规表达，请重新命名');return;}if(!/^[\u4e00-\u9fa5A-Za-z0-9_-]+$/.test(nickname)){showToast('昵称只使用中文、字母、数字、下划线或短横线');return;}}try{if(serverMode){const result=await authRequest('/api/auth/verify',{phone,code,mode:authMode,nickname});completeAuth(authMode==='login'?'登录':'注册',result.token);}else{if(code!=='123456')throw new Error('请输入本地演示验证码 123456');completeAuth(authMode==='login'?'登录':'注册');}}catch(error){showToast(error.message);}});
     $('wechatAuth').addEventListener('click',()=>completeAuth('微信快捷登录'));$('qqAuth').addEventListener('click',()=>completeAuth('QQ快捷登录'));
     const onboardingSteps=[
-      {icon:'message-circle-warning',title:'吐槽可以，伤害别人不行',text:'吐槽专区接纳委屈、烦恼和不解，也鼓励继续交流处理思路。支持匿名发布与共情安慰；禁止挂人、泄露隐私、人身攻击和组织网暴。'},
+      {icon:'message-circle-warning',title:'可以匿名吐槽，真实说出烦恼',text:'吐槽专区支持一键匿名发布，其他用户看不到你的公开身份；匿名不代表无需负责，内容仍会经过安全审核。这里接纳委屈、烦恼和不解，也鼓励共情安慰与交流处理思路；禁止挂人、泄露隐私、人身攻击和组织网暴。'},
       {icon:'coffee',title:'松一点，也认真一点',text:'这里欢迎普通人的真实经验、通俗讲解和不完美表达。你不必像专家，也不用为了排名内卷；真诚说清经历和想法，就值得被看见。'},
       {icon:'messages-square',title:'分歧进入多人思辨空间',text:'连续3轮出现明确分歧后才会开启。空间仅支持文字，多人轮流发言；先复述他人观点，再提供事实或逻辑。攻击性表达会被拦截，累计2次将禁言。'}
     ];
