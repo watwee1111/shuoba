@@ -718,7 +718,7 @@
       return `<div class="article-recommendations"><h3>看完这篇，还可以接着看</h3>${related.map(item=>`<button class="article-recommendation" data-article-recommend="${item.id}"><strong>${item.title}</strong><span>${item.category} · ${item.author} · ${item.likes} 人认可</span></button>`).join('')}</div>`;
     }
     function openArticlePage(postId){
-      const url=new URL(location.href);url.search='';url.searchParams.set('article',postId);url.searchParams.set('v','23');location.href=url.toString();
+      const url=new URL(location.href);url.search='';url.searchParams.set('article',postId);url.searchParams.set('v','24');window.location.assign(url.toString());
     }
     function postHtml(p) {
       const tagClass = p.type==='question'?'question':p.type==='gratitude'?'gratitude':p.type==='complaint'?'complaint':'';
@@ -786,7 +786,7 @@
       if(!$('searchPage').classList.contains('hidden'))$('searchResultLabel').textContent=query?`找到 ${items.length} 条相关内容`:'输入问题或关键词';
       document.querySelectorAll('.like-btn').forEach(btn=>btn.addEventListener('click',()=>requireAuth(()=>{const liked=btn.classList.toggle('liked');const span=btn.querySelector('span');const number=Number((span.textContent.match(/\d+/)||['0'])[0])+(liked?1:-1);const label=span.textContent.startsWith('鼓励')?'鼓励 ':span.textContent.startsWith('抱抱')?'抱抱 ':'点赞 ';span.textContent=label+number;const post=posts.find(item=>String(item.id)===btn.closest('.post').dataset.post);if(post){preferredCategories[post.category]=Math.max(0,(preferredCategories[post.category]||0)+(liked?1:-1));localStorage.setItem('shuoba-preferred-categories',JSON.stringify(preferredCategories));if(!$('searchPage').classList.contains('hidden'))renderSearchRecommendations();}showToast(liked?'你的认可已送达，创作者会收到一份小小鼓励':'已收回这次认可');})));
       document.querySelectorAll('.save-btn').forEach(btn=>btn.addEventListener('click',()=>requireAuth(()=>{const id=btn.closest('.post').dataset.post;const saved=savedPosts.includes(id);savedPosts=saved?savedPosts.filter(item=>item!==id):[...savedPosts,id];localStorage.setItem('shuoba-saved-posts',JSON.stringify(savedPosts));btn.classList.toggle('liked',!saved);btn.querySelector('span').textContent=saved?'收藏':'已收藏';showToast(saved?'已从收藏中移除':'已安静地收进收藏，想看时再回来');})));
-      document.querySelectorAll('.post').forEach(card=>card.addEventListener('click',e=>{if(e.target.closest('button, input, textarea, select, a, .comment-box, .supplement-box'))return;openArticlePage(card.dataset.post);}));
+      document.querySelectorAll('.post').forEach(card=>card.addEventListener('click',e=>{const control=e.target.closest('button, input, textarea, select, a, .comment-box, .supplement-box');if(control&&!control.classList.contains('post-title-button'))return;openArticlePage(card.dataset.post);}));
       document.querySelectorAll('.supplement-toggle').forEach(btn=>btn.addEventListener('click',()=>btn.closest('.post').querySelector('.supplement-box').classList.toggle('hidden')));
       document.querySelectorAll('.comment-toggle').forEach(btn=>btn.addEventListener('click',()=>btn.closest('.post').querySelector('.comment-box').classList.toggle('hidden')));
       document.querySelectorAll('.share-toggle').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();const menu=btn.nextElementSibling;document.querySelectorAll('.share-menu').forEach(x=>{if(x!==menu)x.classList.add('hidden');});menu.classList.toggle('hidden');}));
